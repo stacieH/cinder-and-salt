@@ -90,12 +90,18 @@ inline a one-off timeline.
 
 ### Route transitions
 
-React's `<ViewTransition>` component in the root layout. Next.js 16's App Router supports it
-with no configuration (verified against the bundled Next.js documentation at
-`node_modules/next/dist/docs/01-app/02-guides/view-transitions.md`), so no third-party
-transition library or custom router interception is needed. The gallery thumbnail-to-lightbox
-morph uses a `view-transition-class` shared-element name. Browsers without View Transitions
-support navigate normally, without animation.
+React's `<ViewTransition>` component, wrapped around the contents of **each `page.tsx`** —
+not the root layout. Layouts persist across navigation, so enter and exit animations never
+fire there; this is stated explicitly in the bundled Next.js documentation at
+`node_modules/next/dist/docs/01-app/02-guides/view-transitions.md`. Next.js 16's App Router
+supports the component with no configuration, so no third-party transition library or custom
+router interception is needed.
+
+Navigation direction is carried by the `transitionTypes` prop on `<Link>` (`nav-forward` for
+descending into a section, `nav-back` for returning home), and each page maps those types to
+directional enter and exit animations. The gallery thumbnail-to-lightbox morph uses a shared
+`name` with `share="morph"`. Browsers without View Transitions support navigate normally,
+without animation.
 
 ### Robustness rules
 
