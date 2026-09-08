@@ -1,0 +1,41 @@
+:root {
+  /* Ink and surfaces — near-black base, warm off-white, single brass accent */
+  --ink: #f4efe7;
+  --ink-muted: #a89f92;
+  --ink-subtle: #7a7269;
+  --ink-inverse: #0d0c0b;
+  --surface: #0d0c0b;
+  --surface-raised: #16140f;
+  --surface-veil: rgba(13, 12, 11, 0.72);
+  --accent: #c8a24a;
+  --accent-strong: #dfba63;
+  --border: #2a2621;
+
+  /* Spacing, 4px base */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-8: 48px;
+  --space-10: 64px;
+  --space-12: 96px;
+  --space-16: 144px;
+
+  /* Type scale */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.75rem;
+  --text-2xl: 2.5rem;
+  --text-3xl: 4rem;
+  --text-4xl: 6rem;
+  --leading-tight: 1.05;
+  --leading-normal: 1.6;
+  --tracking-wide: 0.18em;
+
+  --content-max: 1240px;
+  --header-height: 88px;
+}
