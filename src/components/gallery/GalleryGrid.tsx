@@ -63,15 +63,19 @@ export default function GalleryGrid({ images }: GalleryGridProps) {
   // A plain `<div role="dialog">` gets no browser-enforced modality, unlike
   // native <dialog>.showModal(). Lock background scroll ourselves while the
   // dialog is open, restoring whatever value was there before rather than
-  // assuming it was empty.
+  // assuming it was empty. The lock sits on <html>, not <body>: Lenis
+  // ignores body overflow, but its autoToggle option (see
+  // SmoothScrollProvider) pauses smooth scrolling while the root element's
+  // overflow is hidden.
   useEffect(() => {
     if (!open) return undefined;
 
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
+    const root = document.documentElement;
+    const previousOverflow = root.style.overflow;
+    root.style.overflow = 'hidden';
 
     return () => {
-      document.body.style.overflow = previousOverflow;
+      root.style.overflow = previousOverflow;
     };
   }, [open]);
 

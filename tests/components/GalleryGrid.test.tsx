@@ -29,7 +29,7 @@ const images: GalleryImage[] = [
 
 describe('GalleryGrid', () => {
   afterEach(() => {
-    document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
   });
 
   it('renders a button per image with its alt text', () => {
@@ -121,14 +121,14 @@ describe('GalleryGrid', () => {
     expect(grid).not.toHaveAttribute('aria-hidden');
   });
 
-  it('locks body scroll while the dialog is open and restores the prior value after close', () => {
-    document.body.style.overflow = 'scroll';
+  it('locks page scroll on the root element while open and restores the prior value after close', () => {
+    document.documentElement.style.overflow = 'scroll';
     render(<GalleryGrid images={images} />);
 
     fireEvent.click(screen.getByRole('button', { name: /dining room at dusk/i }));
-    expect(document.body.style.overflow).toBe('hidden');
+    expect(document.documentElement.style.overflow).toBe('hidden');
 
     fireEvent.click(screen.getByRole('button', { name: 'Close image' }));
-    expect(document.body.style.overflow).toBe('scroll');
+    expect(document.documentElement.style.overflow).toBe('scroll');
   });
 });
