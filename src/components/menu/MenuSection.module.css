@@ -69,7 +69,10 @@
     margin-bottom: var(--space-8);
   }
 
+  /* Course headings land below the scrolled header (64px), the sticky course
+     strip (44px), and a little breathing room. */
   .course {
     padding-bottom: var(--space-10);
+    scroll-margin-top: calc(var(--space-10) + 44px + var(--space-4));
   }
 }
