@@ -1,0 +1,16 @@
+.page {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: calc(var(--header-height) + var(--space-12)) var(--space-6) var(--space-16);
+}
+
+.title {
+  font-size: var(--text-3xl);
+  margin-bottom: var(--space-4);
+}
+
+.intro {
+  color: var(--ink-muted);
+  max-width: 52ch;
+  margin-bottom: var(--space-10);
+}

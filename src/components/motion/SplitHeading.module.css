@@ -1,0 +1,16 @@
+.heading {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 0.28em;
+}
+
+.mask {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+}
+
+.word {
+  display: inline-block;
+  will-change: transform;
+}

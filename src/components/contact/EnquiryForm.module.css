@@ -1,0 +1,78 @@
+.form {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-5);
+}
+
+.field {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.label {
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--ink-subtle);
+}
+
+.input,
+.textarea {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border-strong);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: var(--text-base);
+  padding: var(--space-3) 0;
+}
+
+.input:focus,
+.textarea:focus {
+  outline: none;
+  border-bottom-color: var(--accent);
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.error {
+  font-size: var(--text-xs);
+  color: var(--danger);
+}
+
+.submit {
+  justify-self: start;
+  border: none;
+  background: var(--accent);
+  color: var(--ink-inverse);
+  font-family: inherit;
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  padding: var(--space-4) var(--space-8);
+  cursor: pointer;
+  transition: background-color 200ms ease;
+}
+
+.submit:hover {
+  background: var(--accent-strong);
+}
+
+.status {
+  font-size: var(--text-sm);
+  color: var(--accent);
+}
+
+@media (max-width: 720px) {
+  .row {
+    grid-template-columns: 1fr;
+  }
+}

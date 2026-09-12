@@ -1,15 +1,31 @@
 :root {
-  /* Ink and surfaces — near-black base, warm off-white, single brass accent */
-  --ink: #f4efe7;
-  --ink-muted: #a89f92;
-  --ink-subtle: #7a7269;
-  --ink-inverse: #0d0c0b;
-  --surface: #0d0c0b;
-  --surface-raised: #16140f;
-  --surface-veil: rgba(13, 12, 11, 0.72);
-  --accent: #c8a24a;
-  --accent-strong: #dfba63;
-  --border: #2a2621;
+  /* Salt and cinder — salt-white surfaces, charcoal ink, one copper accent */
+  --ink: #1f1f1d;
+  --ink-muted: #5f5e5a;
+  --ink-subtle: #615f5a;
+  --ink-inverse: #f3f1ec;
+  --surface: #f3f1ec;
+  /* RGB triplet of --surface, for rgba() layers derived from the palette
+     instead of restating the hex as decimal. Keep in sync with --surface. */
+  --surface-rgb: 243, 241, 236;
+  --surface-raised: #e8e5dd;
+  --surface-veil: rgba(var(--surface-rgb), 0.85);
+  --accent: #a4481f;
+  --accent-strong: #8a3a17;
+  /* Decorative rules and dividers. */
+  --border: #c9c5bb;
+  /* Boundary for interactive controls: meets WCAG 1.4.11 (3:1) on both
+     --surface and --surface-raised, which the decorative --border does not. */
+  --border-strong: #86837b;
+  --danger: #a8261b;
+
+  /* Image contexts. A salt-white scrim cannot carry legible text over a
+     photograph, so the hero and the gallery lightbox use a cinder scrim with
+     light text. Contrast verified over a worst-case pure-white photo pixel. */
+  --scrim-rgb: 27, 27, 26;
+  --on-image: #f3f1ec;
+  --on-image-muted: #cfccc4;
+  --on-image-accent: #e07a4c;
 
   /* Spacing, 4px base */
   --space-1: 4px;

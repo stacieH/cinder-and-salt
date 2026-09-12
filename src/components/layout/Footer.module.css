@@ -1,0 +1,22 @@
+.footer {
+  border-top: 1px solid var(--border);
+  background: var(--surface-raised);
+  padding: var(--space-12) var(--space-6) var(--space-8);
+}
+
+.inner {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-8);
+}
+
+.colophon {
+  max-width: var(--content-max);
+  margin: var(--space-10) auto 0;
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--border);
+  font-size: var(--text-xs);
+  color: var(--ink-subtle);
+}

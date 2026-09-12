@@ -51,12 +51,12 @@ Phases 2 and 3 each require their own design document and implementation plan.
 | --- | --- | --- |
 | `/` | Full-bleed hero, philosophy statement, signature-dish showcase, atmosphere strip, reservation call to action | Parallax hero with masked headline reveal; pinned horizontal dish sequence |
 | `/menu` | Courses (starters, mains, desserts, wine) with sticky course navigation | Per-course scroll reveals; sticky nav highlights the active course |
-| `/about` | Chef biography, kitchen philosophy, provenance timeline | Alternating image/text parallax; scrubbed timeline progress |
+| `/about` | Chef biography, kitchen philosophy, provenance timeline | Alternating image/text parallax; per-entry timeline reveals |
 | `/gallery` | Interior and plating photography grid with lightbox | Staggered grid reveals; shared-element transition into the lightbox |
 | `/contact` | Hours, address, map placeholder, enquiry form | Reveal on scroll; inline-validated form with a mock submit |
 
 A shared shell provides a fixed header that shrinks and inverts on scroll, a footer with
-hours and social links, and animated transitions between all five routes.
+hours and contact details, and animated transitions between all five routes.
 
 ## Architecture
 
@@ -144,7 +144,7 @@ course list) live in `src/lib/` so they are unit-testable without rendering Reac
 
 `next/image` throughout, sourcing photography from Unsplash (the source already used
 elsewhere in this repository) with `images.remotePatterns` in `next.config.js` restricted to
-`images.unsplash.com`. Every image declares explicit `sizes` and a blur placeholder. The hero
+`images.unsplash.com`. Every image declares explicit `sizes`. The hero
 and above-the-fold plating photographs use `priority`; everything else lazy-loads.
 
 ## Project setup
@@ -196,3 +196,4 @@ resolver.
   `gsap.matchMedia()`; those sections degrade to ordinary stacked reveals.
 - **Scope creep from phases 2 and 3.** The "Reserve" call to action deliberately points at
   `/contact` so no partial booking implementation leaks into this phase.
+

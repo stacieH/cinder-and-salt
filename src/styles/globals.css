@@ -15,7 +15,7 @@ body {
 body {
   background: var(--surface);
   color: var(--ink);
-  font-family: var(--font-body), Georgia, serif;
+  font-family: var(--font-body), system-ui, -apple-system, 'Segoe UI', sans-serif;
   font-size: var(--text-base);
   line-height: var(--leading-normal);
   -webkit-font-smoothing: antialiased;
@@ -55,4 +55,106 @@ img {
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
+}
+
+::view-transition-group(.morph) {
+  animation-duration: 420ms;
+}
+
+::view-transition-image-pair(.morph) {
+  animation-name: morph-blur;
+}
+
+@keyframes morph-blur {
+  30% {
+    filter: blur(3px);
+  }
+}
+
+::view-transition-old(.nav-forward) {
+  animation: 160ms ease-in both fade-out, 380ms ease-in-out both slide-out-left;
+}
+
+::view-transition-new(.nav-forward) {
+  animation: 220ms ease-out 160ms both fade-in, 420ms ease-out 160ms both slide-in-right;
+}
+
+::view-transition-old(.nav-back) {
+  animation: 160ms ease-in both fade-out, 380ms ease-in-out both slide-out-right;
+}
+
+::view-transition-new(.nav-back) {
+  animation: 220ms ease-out 160ms both fade-in, 420ms ease-out 160ms both slide-in-left;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    transform: translateX(48px);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-left {
+  from {
+    transform: translateX(-48px);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-out-left {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-48px);
+  }
+}
+
+@keyframes slide-out-right {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(48px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*),
+  ::view-transition-image-pair(*) {
+    animation: none !important;
+  }
 }

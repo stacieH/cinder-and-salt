@@ -1,0 +1,27 @@
+.viewport {
+  position: relative;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.viewport::-webkit-scrollbar {
+  display: none;
+}
+
+/* Clipping is only safe once JavaScript has actually engaged the pin: the
+   track is roughly 4x a typical viewport width, so without a pin the last
+   panels would be trapped inside a clipped box with no scrollbar and no
+   way to reach them. `data-pinned` is set exclusively from the desktop +
+   no-preference matchMedia branch in PinnedSequence.tsx, and cleared the
+   moment that branch's condition stops matching, so this rule can only be
+   active while the pin genuinely exists. */
+.viewport[data-pinned='true'] {
+  overflow: hidden;
+}
+
+.track {
+  display: flex;
+  gap: var(--space-6);
+  align-items: stretch;
+  padding: 0 var(--space-6);
+}

@@ -1,16 +1,18 @@
 import { ReactNode } from 'react';
 import { Metadata } from 'next';
-import { Cormorant_Garamond, Inter } from 'next/font/google';
+import { Fraunces, Plus_Jakarta_Sans } from 'next/font/google';
+import SmoothScrollProvider from '@/components/motion/SmoothScrollProvider';
+import Header from '@/components/layout/Header';
+import Footer from '@/components/layout/Footer';
 import '../styles/globals.css';
 
-const display = Cormorant_Garamond({
+const display = Fraunces({
   subsets: ['latin'],
-  weight: ['300', '400', '600'],
   display: 'swap',
   variable: '--font-display',
 });
 
-const body = Inter({
+const body = Plus_Jakarta_Sans({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-body',
@@ -18,15 +20,15 @@ const body = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: 'Ember & Ash',
-    template: '%s · Ember & Ash',
+    default: 'Cinder & Salt',
+    template: '%s · Cinder & Salt',
   },
   description:
-    'A seasonal tasting menu cooked over open flame, served in a room built for long evenings.',
+    'A live-flame tasting menu of seasonal plates, with a cellar built for pairing.',
   openGraph: {
-    title: 'Ember & Ash',
+    title: 'Cinder & Salt',
     description:
-      'A seasonal tasting menu cooked over open flame, served in a room built for long evenings.',
+      'A live-flame tasting menu of seasonal plates, with a cellar built for pairing.',
     type: 'website',
   },
 };
@@ -34,7 +36,13 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={`${display.variable} ${body.variable}`}>
-      <body>{children}</body>
+      <body>
+        <SmoothScrollProvider>
+          <Header />
+          <main>{children}</main>
+          <Footer />
+        </SmoothScrollProvider>
+      </body>
     </html>
   );
 }

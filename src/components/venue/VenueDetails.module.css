@@ -1,0 +1,21 @@
+.heading {
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--ink-subtle);
+  margin-bottom: var(--space-4);
+}
+
+.line {
+  font-size: var(--text-sm);
+  color: var(--ink-muted);
+}
+
+.hours {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--ink-muted);
+  padding: var(--space-1) 0;
+}
