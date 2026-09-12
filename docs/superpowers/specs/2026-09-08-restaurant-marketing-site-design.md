@@ -3,10 +3,11 @@
 **Date:** 2026-09-08
 **Status:** Approved for planning
 **Phase:** 1 of 3 (marketing site)
+**Brand:** Cinder & Salt. Rebranded 2026-09-12; the About page was removed in that rebrand.
 
 ## Summary
 
-Build a modern fine-dining restaurant website: five routes, cinematic scroll-driven
+Build a fine-dining restaurant website for Cinder & Salt: four routes, cinematic scroll-driven
 animation, static content, no backend. Reservations and online ordering are deliberately
 deferred to later phases, each of which gets its own design and plan.
 
@@ -50,13 +51,12 @@ Phases 2 and 3 each require their own design document and implementation plan.
 | Route | Content | Signature motion |
 | --- | --- | --- |
 | `/` | Full-bleed hero, philosophy statement, signature-dish showcase, atmosphere strip, reservation call to action | Parallax hero with masked headline reveal; pinned horizontal dish sequence |
-| `/menu` | Courses (starters, mains, desserts, wine) with sticky course navigation | Per-course scroll reveals; sticky nav highlights the active course |
-| `/about` | Chef biography, kitchen philosophy, provenance timeline | Alternating image/text parallax; per-entry timeline reveals |
+| `/menu` | Courses (starters, mains, sides, desserts, drinks) with sticky course navigation | Per-course scroll reveals; sticky nav highlights the active course |
 | `/gallery` | Interior and plating photography grid with lightbox | Staggered grid reveals; shared-element transition into the lightbox |
 | `/contact` | Hours, address, map placeholder, enquiry form | Reveal on scroll; inline-validated form with a mock submit |
 
-A shared shell provides a fixed header that shrinks and inverts on scroll, a footer with
-hours and contact details, and animated transitions between all five routes.
+A shared shell provides a fixed header on a salt veil that shrinks on scroll, a footer with
+hours and contact details, and animated transitions between all four routes.
 
 ## Architecture
 
@@ -80,8 +80,7 @@ GSAP reverts its own tweens and triggers on unmount:
 
 - `<Reveal>` — fade, slide, or mask entrance on scroll, with `stagger` support for grids.
 - `<Parallax>` — scrubbed vertical offset for images and background layers.
-- `<PinnedSequence>` — pins a section and scrubs a timeline; used by the home dish showcase
-  and the about-page timeline.
+- `<PinnedSequence>` — pins a section and scrubs a timeline; used by the home dish showcase.
 - `<SplitHeading>` — per-line or per-word masked headline reveal.
 
 Pages compose these; individual pages do not author bespoke GSAP timelines. Anything that
@@ -120,8 +119,7 @@ not drift as late-loading media changes layout.
 
 ## Content and data
 
-Static, typed content modules under `src/content/` (`dishes.ts`, `courses.ts`, `chef.ts`,
-`gallery.ts`, `venue.ts`), imported directly by Server Components. Shared interfaces live in
+Static, typed content modules under `src/content/` (`dishes.ts`, `gallery.ts`, `venue.ts`), imported directly by Server Components. Shared interfaces live in
 `src/types/`.
 
 No mock API route: this content is static, so routing it through a fake fetch layer would add
@@ -133,10 +131,13 @@ course list) live in `src/lib/` so they are unit-testable without rendering Reac
 
 ## Visual system
 
-- **Palette:** near-black base, warm off-white, and a single brass/amber accent, defined as
+- **Palette:** salt-white base, charcoal cinder ink, and a single copper accent, defined as
   custom properties in one token stylesheet so the entire look is tunable from one file.
-- **Typography:** a high-contrast display serif for headlines paired with a quiet sans for
-  body text, both self-hosted via `next/font` to avoid layout shift.
+  Image contexts (the hero and the gallery lightbox) use a separate cinder scrim with light
+  text, because a salt-white scrim cannot carry legible text over a photograph. Every text
+  and control pairing meets WCAG AA, and form field boundaries meet 1.4.11 (3:1).
+- **Typography:** Fraunces for headlines paired with Plus Jakarta Sans for body text, both
+  self-hosted via `next/font` to avoid layout shift.
 - **Layout:** generous negative space, full-bleed imagery, restrained rules. Motion carries
   the drama rather than ornamentation.
 
@@ -186,7 +187,7 @@ resolver.
   positions and pin calculations carry no meaning there. These are verified by running the
   site.
 - **Verification gate** — `npm run build`, `npm run lint`, and `npm test` all pass, followed
-  by a development-server pass across all five routes.
+  by a development-server pass across all four routes.
 
 ## Risks
 

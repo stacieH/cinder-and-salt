@@ -1,5 +1,7 @@
 # Animated Restaurant Marketing Site Implementation Plan
 
+> **Rebrand note (2026-09-12):** this site is Cinder & Salt. The About page and its chef content were removed in the rebrand, and the examples below use the Cinder & Salt name. Task 10 (the About page) is kept only as a record of what was originally built.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Build a five-route, scroll-animated fine-dining restaurant marketing site as a fresh Next.js 16 App Router + TypeScript project on a new branch.
@@ -532,13 +534,13 @@ const body = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: 'Ember & Ash',
-    template: '%s · Ember & Ash',
+    default: 'Cinder & Salt',
+    template: '%s · Cinder & Salt',
   },
   description:
     'A seasonal tasting menu cooked over open flame, served in a room built for long evenings.',
   openGraph: {
-    title: 'Ember & Ash',
+    title: 'Cinder & Salt',
     description:
       'A seasonal tasting menu cooked over open flame, served in a room built for long evenings.',
     type: 'website',
@@ -756,11 +758,11 @@ Expected: PASS, 6 tests.
 import { Venue } from '@/types';
 
 export const venue: Venue = {
-  name: 'Ember & Ash',
+  name: 'Cinder & Salt',
   tagline: 'Cooked over open flame, served without ceremony.',
-  address: ['14 Lantern Row', 'Bonifacio Global City', 'Taguig 1634'],
+  address: ['27 Cinderwood Lane', 'Poblacion', 'Makati 1210'],
   phone: '+63 2 8123 4567',
-  email: 'reserve@emberandash.ph',
+  email: 'reserve@cinderandsalt.example',
   hours: [
     { days: 'Tuesday — Thursday', time: '18:00 — 23:00' },
     { days: 'Friday — Saturday', time: '17:30 — 00:30' },
@@ -778,8 +780,8 @@ import { Dish } from '@/types';
 export const dishes: Dish[] = [
   {
     id: 'oyster',
-    name: 'Ash-Cured Oyster',
-    description: 'Cured over embers, dressed with green apple and burnt lemon oil.',
+    name: 'Salt-Cured Oyster',
+    description: 'Cured over live coals, dressed with green apple and burnt lemon oil.',
     course: 'starters',
     price: 680,
     image:
@@ -839,7 +841,7 @@ export const dishes: Dish[] = [
   {
     id: 'celeriac',
     name: 'Whole Roast Celeriac',
-    description: 'Buried in embers for six hours, hazelnut, aged parmesan.',
+    description: 'Buried in live coals for six hours, hazelnut, aged parmesan.',
     course: 'mains',
     price: 1280,
     image:
@@ -895,7 +897,7 @@ export const dishes: Dish[] = [
 import { Chef } from '@/types';
 
 export const chef: Chef = {
-  name: 'Mira Salvador',
+  name: 'Alex Rivera',
   role: 'Chef & Founder',
   portrait:
     'https://images.unsplash.com/photo-1583394293214-28a5b42f7f37?w=1200&q=80&auto=format&fit=crop',
@@ -912,7 +914,7 @@ export const chef: Chef = {
     {
       year: '2018',
       title: 'The first room',
-      body: 'A twenty-two seat room opened on Lantern Row, with a single hearth at its centre.',
+      body: 'A twenty-two seat room opened on Cinderwood Lane, with a single hearth at its centre.',
     },
     {
       year: '2021',
@@ -921,7 +923,7 @@ export const chef: Chef = {
     },
     {
       year: '2025',
-      title: 'Ember & Ash today',
+      title: 'Cinder & Salt today',
       body: 'One seasonal menu, served five nights a week, still cooked entirely over flame.',
     },
   ],
@@ -1779,7 +1781,7 @@ describe('Header', () => {
   it('renders the venue name and primary navigation', () => {
     render(<Header />);
 
-    expect(screen.getByRole('link', { name: 'Ember & Ash' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Cinder & Salt' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Menu' })).toHaveAttribute('href', '/menu');
     expect(screen.getByRole('link', { name: 'About' })).toHaveAttribute('href', '/about');
     expect(screen.getByRole('link', { name: 'Gallery' })).toHaveAttribute('href', '/gallery');
@@ -2121,8 +2123,8 @@ const dishes: Dish[] = [
   },
   {
     id: 'oyster',
-    name: 'Ash-Cured Oyster',
-    description: 'Cured over embers.',
+    name: 'Salt-Cured Oyster',
+    description: 'Cured over live coals.',
     course: 'starters',
     price: 680,
     image: 'https://images.unsplash.com/photo-2',
@@ -2136,7 +2138,7 @@ describe('DishShowcase', () => {
 
     expect(screen.getByText('Forty-Day Ribeye')).toBeInTheDocument();
     expect(screen.getByText('Dry-aged, grilled over binchotan.')).toBeInTheDocument();
-    expect(screen.getByText('Ash-Cured Oyster')).toBeInTheDocument();
+    expect(screen.getByText('Salt-Cured Oyster')).toBeInTheDocument();
   });
 
   it('gives every dish image descriptive alt text', () => {
@@ -2248,7 +2250,7 @@ export default function Hero() {
 
       <div className={styles.content}>
         <Reveal>
-          <p className={styles.eyebrow}>Taguig · Est. 2018</p>
+          <p className={styles.eyebrow}>Scorchlit · Downtown</p>
         </Reveal>
         <SplitHeading as="h1" text="Cooked over open flame" className={styles.title} />
         <Reveal delay={0.3}>
@@ -3303,7 +3305,7 @@ Hours, address, and an enquiry form with inline validation and a mock submit.
 import { EnquiryValues, validateEnquiry } from '@/lib/enquiry';
 
 const valid: EnquiryValues = {
-  name: 'Mira Salvador',
+  name: 'Alex Rivera',
   email: 'mira@example.com',
   date: '2026-10-02',
   guests: '4',
@@ -3751,7 +3753,7 @@ import styles from './contact.module.css';
 
 export const metadata: Metadata = {
   title: 'Contact',
-  description: 'Find us on Lantern Row, check our hours, or send an enquiry.',
+  description: 'Find us on Cinderwood Lane, check our hours, or send an enquiry.',
 };
 
 export default function ContactPage() {
