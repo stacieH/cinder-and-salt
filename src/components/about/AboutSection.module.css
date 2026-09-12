@@ -1,0 +1,62 @@
+.section {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: var(--space-16) var(--space-6);
+}
+
+.story {
+  max-width: 60ch;
+  margin: 0 auto var(--space-12);
+  text-align: center;
+}
+
+/* SplitHeading lays its words out with flexbox, so centre them with
+   justify-content rather than text-align. */
+.title {
+  font-size: var(--text-3xl);
+  margin-bottom: var(--space-6);
+  justify-content: center;
+}
+
+.paragraph {
+  color: var(--ink-muted);
+  margin-bottom: var(--space-5);
+}
+
+.timeline {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 0;
+  list-style: none;
+}
+
+.entry {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  gap: var(--space-6);
+  padding: var(--space-8) 0;
+  border-top: 1px solid var(--border);
+}
+
+.year {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: var(--text-lg);
+  color: var(--accent);
+}
+
+.entryTitle {
+  font-size: var(--text-lg);
+  margin-bottom: var(--space-2);
+}
+
+.entryBody {
+  color: var(--ink-muted);
+  font-size: var(--text-sm);
+}
+
+@media (max-width: 899px) {
+  .entry {
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
+  }
+}

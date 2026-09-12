@@ -18,6 +18,18 @@ export interface GalleryImage {
   height: number;
 }
 
+export interface Milestone {
+  year: string;
+  title: string;
+  body: string;
+}
+
+export interface AboutContent {
+  title: string;
+  story: string[];
+  milestones: Milestone[];
+}
+
 export interface OpeningHours {
   days: string;
   time: string;
