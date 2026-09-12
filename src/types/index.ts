@@ -35,14 +35,21 @@ export interface OpeningHours {
   time: string;
 }
 
+export interface LatLng {
+  lat: number;
+  lng: number;
+}
+
 export interface Venue {
   name: string;
   tagline: string;
   address: string[];
   phone: string;
   email: string;
-  /** Place the embedded Google map searches for and gives directions to. */
-  mapQuery: string;
+  /** Neighbourhood named in the map's accessible title. */
+  mapArea: string;
+  /** Point the embedded map centres on and marks with the venue pin. */
+  coordinates: LatLng;
   hours: OpeningHours[];
 }
 

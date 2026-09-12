@@ -1,28 +1,35 @@
-import { mapDirectionsUrl, mapEmbedUrl } from '@/lib/maps';
+import { mapDirectionsUrl, mapEmbedUrl, mapOpenUrl } from '@/lib/maps';
+
+const spot = { lat: 14.5647, lng: 121.0294 };
 
 describe('maps', () => {
-  it('builds a keyless Google Maps embed URL for a place at street-level zoom', () => {
-    expect(mapEmbedUrl('Poblacion, Makati City')).toBe(
-      'https://www.google.com/maps?q=Poblacion%2C%20Makati%20City&z=16&output=embed',
+  it('centres a keyless embed on a coordinate without dropping a Google pin', () => {
+    expect(mapEmbedUrl(spot)).toBe(
+      'https://www.google.com/maps?ll=14.5647,121.0294&z=17&output=embed',
     );
   });
 
   it('accepts a custom zoom level', () => {
-    expect(mapEmbedUrl('Makati', 13)).toBe('https://www.google.com/maps?q=Makati&z=13&output=embed');
-  });
-
-  it('builds a Google Maps directions URL for a destination', () => {
-    expect(mapDirectionsUrl('Poblacion, Makati City')).toBe(
-      'https://www.google.com/maps/dir/?api=1&destination=Poblacion%2C%20Makati%20City',
+    expect(mapEmbedUrl(spot, 15)).toBe(
+      'https://www.google.com/maps?ll=14.5647,121.0294&z=15&output=embed',
     );
   });
 
-  it('encodes characters that would otherwise break the query string', () => {
-    expect(mapEmbedUrl('A & B #1')).toBe(
-      'https://www.google.com/maps?q=A%20%26%20B%20%231&z=16&output=embed',
+  it('opens the coordinate in Google Maps', () => {
+    expect(mapOpenUrl(spot)).toBe(
+      'https://www.google.com/maps/search/?api=1&query=14.5647%2C121.0294',
     );
-    expect(mapDirectionsUrl('A & B #1')).toBe(
-      'https://www.google.com/maps/dir/?api=1&destination=A%20%26%20B%20%231',
+  });
+
+  it('gives directions to the coordinate', () => {
+    expect(mapDirectionsUrl(spot)).toBe(
+      'https://www.google.com/maps/dir/?api=1&destination=14.5647%2C121.0294',
+    );
+  });
+
+  it('keeps negative coordinates intact', () => {
+    expect(mapEmbedUrl({ lat: -33.8568, lng: -151.2153 })).toBe(
+      'https://www.google.com/maps?ll=-33.8568,-151.2153&z=17&output=embed',
     );
   });
 });

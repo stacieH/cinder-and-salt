@@ -6,10 +6,11 @@ export const venue: Venue = {
   address: ['27 Cinderwood Lane', 'Poblacion', 'Makati 1210'],
   phone: '+63 2 8123 4567',
   email: 'reserve@cinderandsalt.example',
-  // What the embedded Google map searches for. The street address above is
-  // fictional, so the map centres on the neighbourhood; replace this with the
-  // real street address once there is one.
-  mapQuery: 'Poblacion, Makati City',
+  // The street address above is fictional, so the map marks an invented spot
+  // in Poblacion: Kalayaan Avenue at Makati Avenue. Replace both with the real
+  // location once there is one.
+  mapArea: 'Poblacion, Makati City',
+  coordinates: { lat: 14.5647, lng: 121.0294 },
   hours: [
     { days: 'Tuesday — Thursday', time: '18:00 — 23:00' },
     { days: 'Friday — Saturday', time: '17:30 — 00:30' },

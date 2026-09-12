@@ -28,7 +28,7 @@ describe('VisitSection', () => {
   it('shows the Google map of the venue area instead of a placeholder', () => {
     render(<VisitSection />);
 
-    expect(screen.getByTitle(`Map of ${venue.name} in ${venue.mapQuery}`)).toBeInTheDocument();
+    expect(screen.getByTitle(`Map of ${venue.name} in ${venue.mapArea}`)).toBeInTheDocument();
     expect(screen.queryByText('Map')).toBeNull();
   });
 });

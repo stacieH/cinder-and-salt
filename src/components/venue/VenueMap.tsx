@@ -1,34 +1,60 @@
 import { venue } from '@/content/venue';
-import { mapDirectionsUrl, mapEmbedUrl } from '@/lib/maps';
+import { mapDirectionsUrl, mapEmbedUrl, mapOpenUrl } from '@/lib/maps';
 import styles from './VenueMap.module.css';
 
-// A plain Google Maps embed: no API key, no client JavaScript, and it still
-// works with scripts disabled. `loading="lazy"` keeps Google's frame from
-// loading until the Visit us section is near the viewport.
+// A plain Google Maps embed: no API key and no client JavaScript.
+// `loading="lazy"` keeps Google's frame from loading until the Visit us
+// section is near the viewport.
 export default function VenueMap() {
+  const { coordinates } = venue;
+
   return (
     <div className={styles.map}>
       <div className={styles.frame}>
         <iframe
           className={styles.iframe}
-          title={`Map of ${venue.name} in ${venue.mapQuery}`}
-          src={mapEmbedUrl(venue.mapQuery)}
+          title={`Map of ${venue.name} in ${venue.mapArea}`}
+          src={mapEmbedUrl(coordinates)}
           loading="lazy"
           referrerPolicy="no-referrer-when-downgrade"
-          allowFullScreen
+          tabIndex={-1}
         />
+
+        {/* The embed is centred on the venue coordinates, so the pin is drawn
+            at the frame's centre. This layer also stops the map from being
+            dragged, which would carry the spot away from the pin; the links
+            below are the way to interact with the map. Decorative for
+            assistive technology: the iframe title names the place. */}
+        <div className={styles.overlay} aria-hidden="true">
+          <span className={styles.pulse} />
+          <div className={styles.marker} data-map-marker>
+            <span className={styles.label}>{venue.name}</span>
+            <span className={styles.pin} />
+          </div>
+        </div>
       </div>
 
-      <a
-        className={styles.directions}
-        href={mapDirectionsUrl(venue.mapQuery)}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        Get directions
-        <span className={styles.visuallyHidden}> (opens Google Maps in a new tab)</span>
-        <span aria-hidden="true"> →</span>
-      </a>
+      <div className={styles.links}>
+        <a
+          className={styles.link}
+          href={mapOpenUrl(coordinates)}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Open in Google Maps
+          <span className={styles.visuallyHidden}> (opens in a new tab)</span>
+        </a>
+        <a
+          className={styles.link}
+          href={mapDirectionsUrl(coordinates)}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Get directions
+          <span className={styles.visuallyHidden}> (opens Google Maps in a new tab)</span>
+          <span aria-hidden="true">→</span>
+        </a>
+      </div>
     </div>
   );
 }
