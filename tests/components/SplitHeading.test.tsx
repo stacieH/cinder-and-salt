@@ -58,6 +58,24 @@ describe('SplitHeading', () => {
     );
   });
 
+  // In development React Strict Mode runs effects twice. The second run finds
+  // the first run's translate(0, 120%) still on the words, and GSAP parses that
+  // leftover transform into a pixel `y` (about 121px) alongside `yPercent`. The
+  // reveal only animates yPercent, so the words stayed hidden below their masks.
+  // Simulate the leftover offset directly, then re-run the effect.
+  it('clears a stale pixel offset on the words when it applies the masked state', () => {
+    mockMatchMedia(false);
+    const { container, rerender } = render(<SplitHeading text="Open flame" />);
+    const words = Array.from(container.querySelectorAll('[data-word]'));
+
+    gsap.set(words, { y: 121 });
+    rerender(<SplitHeading text="Open flame" delay={0.1} />);
+
+    words.forEach((word) => {
+      expect(gsap.getProperty(word, 'y')).toBe(0);
+    });
+  });
+
   it('resolves words to yPercent: 0 via gsap.set under reduced motion, and never applies the masked state', () => {
     mockMatchMedia(true);
     const setSpy = jest.spyOn(gsap, 'set');

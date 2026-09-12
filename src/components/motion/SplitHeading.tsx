@@ -28,7 +28,12 @@ export default function SplitHeading({
       const media = gsap.matchMedia();
 
       media.add('(prefers-reduced-motion: no-preference)', () => {
-        gsap.set(targets, { yPercent: 120 });
+        // `y: 0` as well as the masked yPercent: when this effect runs over a
+        // transform a previous run left behind (React Strict Mode runs effects
+        // twice in development), GSAP parses that leftover translate into a
+        // pixel `y`. The reveal below only animates yPercent, so a stale `y`
+        // would keep the words hidden below their masks for good.
+        gsap.set(targets, { yPercent: 120, y: 0 });
 
         const tween = gsap.to(targets, {
           yPercent: 0,
@@ -61,13 +66,13 @@ export default function SplitHeading({
         // too on unmount or a dependency change.
         gsap.delayedCall(3, () => {
           if (tween.progress() === 0) {
-            gsap.set(targets, { yPercent: 0 });
+            gsap.set(targets, { yPercent: 0, y: 0 });
           }
         });
       });
 
       media.add(REDUCED_MOTION_QUERY, () => {
-        gsap.set(targets, { yPercent: 0 });
+        gsap.set(targets, { yPercent: 0, y: 0 });
       });
 
       return () => media.revert();
