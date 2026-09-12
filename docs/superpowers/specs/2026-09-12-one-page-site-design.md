@@ -1,11 +1,12 @@
 # Cinder & Salt one-page site — design
 
 **Date:** 2026-09-12
-**Status:** Approved for planning
+**Status:** Implemented. The "Additions after implementation" section records the changes made
+on the same day after the plan's tasks landed.
 **Supersedes:** the Routes and Route transitions sections of
 `2026-09-08-restaurant-marketing-site-design.md`. Everything else in that spec (rendering
 model, animation primitives, robustness rules, content modules, visual system, toolchain)
-still applies.
+still applies, except where the additions below change the type scale, spacing, and header.
 
 ## Summary
 
@@ -14,6 +15,10 @@ Convert the Cinder & Salt marketing site from four routes (`/`, `/menu`, `/galle
 routes, the old URLs redirect to those sections, and the route slide transitions are removed.
 The About page, removed in the rebrand, returns as a section with no chef content. Otherwise
 content, palette, typography, and the scroll-driven motion stay as they are.
+
+After the plan landed, the site also gained a responsive pass (a phone menu, fluid type and
+spacing), a sticky course strip on narrow screens, a Google map with an invented venue pin,
+C&S monogram icons, and a fix for headings that stayed hidden in development.
 
 ## Goals
 
@@ -43,7 +48,7 @@ Sections render in this order from `src/app/page.tsx`:
 | `#menu` | Full menu: all 19 dishes in 5 courses, sticky course navigation | `h2` "The Menu"; courses `h3`; dish names `h4` |
 | `#gallery` | Gallery grid with lightbox | `h2` "The Room" |
 | `#about` | The restaurant's story and a four-entry timeline, text only | `h2` "Built around the grill"; milestone titles `h3` |
-| `#contact` | Visit us: hours, address, map placeholder, enquiry form | `h2` "Visit us" |
+| `#contact` | Visit us: hours, address, a Google map with the venue pin, enquiry form | `h2` "Visit us" |
 | — | Footer | — |
 
 Course anchors (`#starters`, `#mains`, `#sides`, `#desserts`, `#drinks`) are unchanged and do
@@ -189,10 +194,10 @@ listens for.
   paragraphs and four milestones with `h2` and `h3` headings, and no image. `next.config.js`
   returns the four permanent redirects. `Footer` renders the four section links and no venue
   details.
-- **Updated:** `Header` asserts the four `/#…` section hrefs in page order and `aria-current` following the active section,
-  without a `usePathname` mock. `CourseNav` asserts `aria-current`. `SmoothScrollProvider`
-  asserts the `anchors` and `autoToggle` options and the hash re-scroll. `GalleryGrid` asserts
-  the lock on `<html>`.
+- **Updated:** `Header` asserts the four `/#…` section hrefs in page order and `aria-current`
+  following the active section, without a `usePathname` mock. `CourseNav` asserts
+  `aria-current`. `SmoothScrollProvider` asserts the `anchors` and `autoToggle` options and the
+  hash re-scroll. `GalleryGrid` asserts the lock on `<html>`.
 - **Verification gate:** the full Jest suite, ESLint on changed files, and `next build`
   listing only `/` (plus `/_not-found`). Then a browser pass: header links smooth-scroll and
   highlight, `/menu` lands on the menu through the redirect, the lightbox blocks wheel scroll,
@@ -202,8 +207,116 @@ listens for.
 
 - **Lenis anchor offset versus header height.** The header is 88px at the top of the page and
   64px once scrolled. Every section sits well below the fold, so the header has already shrunk
-  when an anchor scroll arrives and the 64px `scroll-margin-top` matches. The browser pass confirms this
-  for a click made from the very top of the page.
+  when an anchor scroll arrives and the 64px `scroll-margin-top` matches. The browser pass
+  confirms this for a click made from the very top of the page.
 - **`autoToggle` browser support.** Lenis detects the overflow change through
   `transition-behavior`. If a target browser does not trigger it, the fallback is to expose
   the Lenis instance through context and call `stop()` and `start()` from the lightbox.
+
+## Additions after implementation
+
+These changes landed on 2026-09-12 after the plan's eight tasks, each with its own tests and a
+browser check in Microsoft Edge.
+
+### Responsive layout
+
+Checked at 1440 (desktop), 1280 (small laptop), 1024 and 768 (tablet), and 390 and 360
+(phone) pixels wide.
+
+- **Phone menu (below 720px).** The header shows the brand and a 44px menu button
+  (`aria-label="Navigation"`, `aria-expanded`, `aria-controls="site-menu"`). The button toggles
+  a panel under the header listing Menu, Gallery, About, and Contact (48px rows) with Reserve
+  at the bottom. The panel closes when a link is chosen, on Escape (focus returns to the
+  button), on a tap outside the header, and when the viewport widens past the breakpoint.
+  It does not lock page scroll: a locked root would pause Lenis at the moment a link is tapped
+  and turn its smooth scroll into a jump. At 720px and wider the links and Reserve stay inline.
+  The breakpoint lives in `Header.module.css` and as `PHONE_MENU_QUERY` in `Header.tsx`.
+- **Fluid type.** `--text-xl`, `--text-2xl`, `--text-3xl`, and `--text-4xl` are `clamp()`
+  values: 22 to 28px, 28 to 40px, 40 to 64px, and 44 to 96px from a 360px phone to desktop.
+  The hero title uses `--text-4xl` at every width, replacing its fixed step at 1100px.
+- **Fluid spacing.** Two new tokens: `--gutter` (20 to 32px side padding) and
+  `--section-space` (64 to 128px section padding). Header, sections, statement, signatures
+  track, and footer use them.
+- **Hero height.** `min-height: 100svh` (after a `100vh` fallback), so mobile browser toolbars
+  do not push the bottom of the hero off screen.
+- **Gallery.** Columns are `minmax(min(300px, 100%), 1fr)`, so a single column fits a 360px
+  phone.
+- **Lightbox.** The wrapper around the figure and caption gets `width: min(1200px, 100%)`.
+  As a flex item it had shrunk to its content, leaving the photo at 271 × 181px on every
+  screen. The figure is capped at `calc(100vh - 12rem)` tall.
+- **Signatures on narrow screens.** When `PinnedSequence` is not pinned, its track snaps panel
+  by panel (`scroll-snap-type: x mandatory`).
+
+### Sticky course strip (below 900px)
+
+On tablets and phones the course links become a single swipeable row that sticks under the
+64px header while the menu is on screen and releases after the last course. It spans the full
+width on the header's translucent surface. When the active course changes, the row scrolls
+horizontally to centre it (never the page), without animation under reduced motion. Course
+headings stop 124px from the top on narrow screens: the header, the 44px strip, and 16px of
+space. The desktop sidebar is unchanged.
+
+### Hidden headings in development
+
+In `next dev`, React Strict Mode runs effects twice. `SplitHeading`'s second run found the
+first run's `translate(0, 120%)` still on the words, and GSAP parsed that leftover transform
+into a pixel `y` of about 121px. The reveal only animates `yPercent`, so every split heading,
+the hero title included, stayed below its mask. The masked, failsafe, and reduced-motion
+states now also set `y: 0`. Production, which mounts once, was not affected.
+
+### Hero eyebrow
+
+"Scorchlit · Downtown" is now 14px, bold, with a tight dark text shadow and a soft dark glow,
+so it reads over bright parts of the hero photo.
+
+### Google map and venue pin
+
+- **Embed.** `VenueMap` replaces the map placeholder with a keyless Google Maps embed
+  (`https://www.google.com/maps?ll=<lat>,<lng>&z=17&output=embed`), lazy-loaded, dimmed
+  slightly, with the title "Map of Cinder & Salt in Poblacion, Makati City" and
+  `tabIndex={-1}`. `ll` centres the map on the point without Google adding its own pin.
+- **Invented location.** The street address is fictional, so `venue.coordinates` is an
+  invented spot: 14.5653, 121.0288, inside the block between General Luna Street and Kalayaan
+  Avenue just west of Makati Avenue in Poblacion, Makati. It was chosen by rendering
+  candidate spots against the live embed so the pin lands clear of the roads.
+  `venue.mapArea` ("Poblacion, Makati City") names the area in the title.
+- **Pin.** A copper pin with a "CINDER & SALT" label and a pulse ring sits at the frame's
+  centre, lifted so its tip marks the spot; the pulse is a still ring under reduced motion.
+  The overlay is `aria-hidden`.
+- **Controls.** The overlay passes pointer events through; three shields cover only the map
+  body, so the map cannot be dragged off the pin, while gaps leave Google's Open in Maps
+  button (top-left), satellite toggle and fullscreen button (bottom corners), and attribution
+  links (bottom 20px) usable. Wheel scrolling over the shields scrolls the page.
+- **Links.** "Open in Google Maps" (`/maps/search/?api=1&query=`) and "Get directions →"
+  (`/maps/dir/?api=1&destination=`) target the coordinates and open in a new tab with
+  `rel="noopener noreferrer"`. URL builders live in `src/lib/maps.ts`.
+
+### Icons
+
+A C&S monogram (salt-white C and S, copper ampersand, in the site's Fraunces serif) on the
+charcoal rounded square. An SVG favicon cannot load the web font, so the icons are PNGs
+rendered in a browser with the site's font: `src/app/favicon.ico` (16, 32, and 48px),
+`src/app/icon.png` (192px), and `src/app/apple-icon.png` (180px, full bleed for iOS
+masking). Next generates the `<link>` tags. This also ends the `/favicon.ico` 404.
+
+### Additional tests
+
+- `Header`: the menu button starts collapsed, controls the list of section links and
+  Reserve, and closes on a link, Escape (with focus returning), a tap outside, and widening
+  past the breakpoint.
+- `CourseNav`: an overflowing row scrolls to centre the active course, a row that fits is left
+  alone, and reduced motion moves it without animation.
+- `SplitHeading`: a stale pixel `y` on the words is cleared when the masked state is applied.
+- `maps`: embed, search, and directions URLs from coordinates.
+- `VenueMap`: the invented coordinates, the centred lazy embed out of the tab order, the
+  hidden pin with its label, and both new-tab links.
+- `icons`: `icon.png` is 192px, `favicon.ico` holds 16, 32, and 48px PNGs, `apple-icon.png`
+  is 180px, and no `icon.svg` competes with them.
+
+### Additional risks
+
+- **Keyless embed endpoint.** `output=embed` with `ll` is Google's classic embed URL rather
+  than the documented Maps Embed API. If Google changes it, switch to the Embed API with a key.
+- **Shield geometry.** The gaps for Google's controls were measured from the current embed.
+  If Google moves its controls, a control could end up under a shield.
+- **16px monogram.** Three characters are soft at 16px; the icon is clear at 32px and above.
