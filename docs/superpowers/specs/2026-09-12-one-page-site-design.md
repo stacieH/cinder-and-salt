@@ -96,15 +96,21 @@ earlier brand's wording.
 
 ## Navigation and scrolling
 
-**Anchor scrolling.** `SmoothScrollProvider` enables Lenis's `anchors` option with an offset
-equal to the scrolled header height (`--space-10`, 64px), so section links smooth-scroll and
-stop below the fixed header. Every section also sets `scroll-margin-top: var(--space-10)`,
-which covers the native jump when Lenis is not running under reduced motion.
+**Anchor scrolling.** `SmoothScrollProvider` enables Lenis's `anchors` option, so same-page
+section links smooth-scroll. Every section sets `scroll-margin-top: var(--space-10)`, the
+scrolled header height (64px). Lenis's `scrollTo` reads the target's `scroll-margin-top`, so
+that one CSS value sets the stop point below the fixed header for smooth scrolling and for the
+native jump under reduced motion. No separate Lenis offset is passed; one would double it.
+
+**Link markup.** Internal links use `href={sectionHref(id)}` expressions. The
+`@next/next/no-html-link-for-pages` lint rule reports a string-literal `href="/#menu"` (it
+strips the hash and matches the `/` route) but skips non-literal values.
 
 **Arriving with a hash.** A direct visit to `/#menu` (including through a redirect) jumps
 natively before `PinnedSequence` adds its pin spacing, so the jump lands short. After the
 existing `ScrollTrigger.refresh()` on load, `SmoothScrollProvider` scrolls to the
-`location.hash` target immediately, with the same offset. Under reduced motion no pins exist,
+`location.hash` target immediately; `scrollTo` again applies the section's
+`scroll-margin-top`. Under reduced motion no pins exist,
 so the native jump is already correct and nothing extra runs.
 
 **Active section.** A new hook, `useActiveSection(ids)`, observes the given elements with a
@@ -132,7 +138,9 @@ reduced-motion layers.
 `body { overflow: hidden }`, which Lenis ignores, so the wheel can scroll the page behind an
 open lightbox. This existed on the old gallery page and matters more mid-page. The lock moves
 to the `<html>` element, and Lenis's `autoToggle` option pauses Lenis while that overflow is
-hidden.
+hidden. `autoToggle` depends on Lenis's stylesheet (`lenis/dist/lenis.css`, imported in the
+root layout), which makes overflow changes on `<html>` fire the `transitionend` event Lenis
+listens for.
 
 ## Code changes
 
@@ -143,6 +151,8 @@ hidden.
 - `src/components/gallery/GallerySection.tsx` and CSS module, from `src/app/gallery/`.
 - `src/components/contact/VisitSection.tsx` and CSS module, from `src/app/contact/`.
 - `src/hooks/useActiveSection.ts`.
+- `src/lib/sections.ts`: the four section ids and labels and `sectionHref`, shared by the
+  header, footer, and page test.
 - `src/content/about.ts`, exporting `about { title, story, milestones }`, and a `Milestone`
   type (`year`, `title`, `body`) in `src/types/index.ts`.
 - `src/components/about/AboutSection.tsx` and CSS module. Timeline styles come from the removed
@@ -157,6 +167,7 @@ hidden.
 - `CourseNav.tsx` uses the hook and sets `aria-current`.
 - `SmoothScrollProvider.tsx` enables `anchors` and `autoToggle` and re-scrolls to the hash
   after refresh.
+- `src/app/layout.tsx` imports `lenis/dist/lenis.css`, which `autoToggle` depends on.
 - `GalleryGrid.tsx` locks scroll on `<html>`.
 - `globals.css` drops the route-transition styles and adds section `scroll-margin-top`.
 - Section headings drop one level as listed in Page structure.
@@ -187,7 +198,7 @@ hidden.
 
 - **Lenis anchor offset versus header height.** The header is 88px at the top of the page and
   64px once scrolled. Every section sits well below the fold, so the header has already shrunk
-  when an anchor scroll arrives and the 64px offset matches. The browser pass confirms this
+  when an anchor scroll arrives and the 64px `scroll-margin-top` matches. The browser pass confirms this
   for a click made from the very top of the page.
 - **`autoToggle` browser support.** Lenis detects the overflow change through
   `transition-behavior`. If a target browser does not trigger it, the fallback is to expose
