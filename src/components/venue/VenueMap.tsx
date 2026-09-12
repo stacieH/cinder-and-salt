@@ -21,11 +21,16 @@ export default function VenueMap() {
         />
 
         {/* The embed is centred on the venue coordinates, so the pin is drawn
-            at the frame's centre. This layer also stops the map from being
-            dragged, which would carry the spot away from the pin; the links
-            below are the way to interact with the map. Decorative for
-            assistive technology: the iframe title names the place. */}
+            at the frame's centre. The shields stop the map body from being
+            dragged, which would carry the spot away from the pin, while the
+            gaps between them leave Google's own controls usable (Open in Maps
+            top-left, satellite toggle bottom-left, fullscreen bottom-right,
+            attribution links along the bottom). Decorative for assistive
+            technology: the iframe title names the place. */}
         <div className={styles.overlay} aria-hidden="true">
+          <span className={`${styles.shield} ${styles.shieldTop}`} data-map-shield />
+          <span className={`${styles.shield} ${styles.shieldMiddle}`} data-map-shield />
+          <span className={`${styles.shield} ${styles.shieldBottom}`} data-map-shield />
           <span className={styles.pulse} />
           <div className={styles.marker} data-map-marker>
             <span className={styles.label}>{venue.name}</span>
