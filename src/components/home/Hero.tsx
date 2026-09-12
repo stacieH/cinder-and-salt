@@ -10,7 +10,7 @@ const HERO_IMAGE =
 
 export default function Hero() {
   return (
-    <section className={styles.hero}>
+    <section id="top" className={styles.hero}>
       <Parallax className={styles.media} speed={0.18}>
         <Image
           className={styles.image}
