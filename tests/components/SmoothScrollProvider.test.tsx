@@ -26,6 +26,17 @@ function restoreFonts() {
   delete (document as unknown as Record<string, unknown>).fonts;
 }
 
+function setReadyState(value: DocumentReadyState) {
+  Object.defineProperty(document, 'readyState', {
+    configurable: true,
+    get: () => value,
+  });
+}
+
+function restoreReadyState() {
+  delete (document as unknown as Record<string, unknown>).readyState;
+}
+
 const MockedLenis = Lenis as unknown as jest.Mock;
 
 beforeEach(() => {
@@ -35,6 +46,11 @@ beforeEach(() => {
     addEventListener: jest.fn(),
     removeEventListener: jest.fn(),
   });
+});
+
+afterEach(() => {
+  restoreReadyState();
+  window.history.replaceState(null, '', '/');
 });
 
 describe('SmoothScrollProvider', () => {
@@ -96,6 +112,7 @@ describe('SmoothScrollProvider', () => {
   });
 
   it('refreshes ScrollTrigger once fonts and the window load event have settled', async () => {
+    setReadyState('loading');
     const refreshSpy = jest.spyOn(ScrollTrigger, 'refresh').mockImplementation(() => {});
     mockFontsReady();
 
@@ -118,6 +135,7 @@ describe('SmoothScrollProvider', () => {
   });
 
   it('never calls ScrollTrigger.refresh under reduced motion, where no triggers exist', async () => {
+    setReadyState('loading');
     window.matchMedia = jest.fn().mockReturnValue({
       matches: true,
       addEventListener: jest.fn(),
@@ -171,11 +189,13 @@ describe('SmoothScrollProvider', () => {
   });
 
   it('re-scrolls to the URL hash once the page has loaded', () => {
+    setReadyState('loading');
     const refreshSpy = jest.spyOn(ScrollTrigger, 'refresh').mockImplementation(() => {});
     window.history.replaceState(null, '', '/#menu');
 
     render(
       <SmoothScrollProvider>
+        <section id="menu" />
         <p>Dining room</p>
       </SmoothScrollProvider>,
     );
@@ -184,11 +204,11 @@ describe('SmoothScrollProvider', () => {
     const lenisInstance = MockedLenis.mock.results[0].value;
     expect(lenisInstance.scrollTo).toHaveBeenCalledWith('#menu', { immediate: true });
 
-    window.history.replaceState(null, '', '/');
     refreshSpy.mockRestore();
   });
 
   it('does not scroll on load when the URL has no hash', () => {
+    setReadyState('loading');
     const refreshSpy = jest.spyOn(ScrollTrigger, 'refresh').mockImplementation(() => {});
     window.history.replaceState(null, '', '/');
 
@@ -202,6 +222,65 @@ describe('SmoothScrollProvider', () => {
     const lenisInstance = MockedLenis.mock.results[0].value;
     expect(lenisInstance.scrollTo).not.toHaveBeenCalled();
 
+    refreshSpy.mockRestore();
+  });
+
+  it('scrolls to the hash immediately when the document has already finished loading', () => {
+    setReadyState('complete');
+    const refreshSpy = jest.spyOn(ScrollTrigger, 'refresh').mockImplementation(() => {});
+    window.history.replaceState(null, '', '/#menu');
+
+    render(
+      <SmoothScrollProvider>
+        <section id="menu" />
+        <p>Dining room</p>
+      </SmoothScrollProvider>,
+    );
+
+    const lenisInstance = MockedLenis.mock.results[0].value;
+    expect(lenisInstance.scrollTo).toHaveBeenCalledWith('#menu', { immediate: true });
+    expect(refreshSpy).toHaveBeenCalled();
+
+    refreshSpy.mockRestore();
+  });
+
+  it('does not scroll on load when the hash matches no element on the page', () => {
+    setReadyState('loading');
+    const refreshSpy = jest.spyOn(ScrollTrigger, 'refresh').mockImplementation(() => {});
+    window.history.replaceState(null, '', '/#foo');
+
+    render(
+      <SmoothScrollProvider>
+        <p>Dining room</p>
+      </SmoothScrollProvider>,
+    );
+    window.dispatchEvent(new Event('load'));
+
+    const lenisInstance = MockedLenis.mock.results[0].value;
+    expect(lenisInstance.scrollTo).not.toHaveBeenCalled();
+
+    refreshSpy.mockRestore();
+  });
+
+  it('does not scroll on a reload, so the browser-restored scroll position wins', () => {
+    setReadyState('loading');
+    const refreshSpy = jest.spyOn(ScrollTrigger, 'refresh').mockImplementation(() => {});
+    const originalGetEntriesByType = window.performance.getEntriesByType;
+    window.performance.getEntriesByType = jest.fn().mockReturnValue([{ type: 'reload' }]);
+    window.history.replaceState(null, '', '/#menu');
+
+    render(
+      <SmoothScrollProvider>
+        <section id="menu" />
+        <p>Dining room</p>
+      </SmoothScrollProvider>,
+    );
+    window.dispatchEvent(new Event('load'));
+
+    const lenisInstance = MockedLenis.mock.results[0].value;
+    expect(lenisInstance.scrollTo).not.toHaveBeenCalled();
+
+    window.performance.getEntriesByType = originalGetEntriesByType;
     refreshSpy.mockRestore();
   });
 });

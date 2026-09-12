@@ -111,7 +111,11 @@ natively before `PinnedSequence` adds its pin spacing, so the jump lands short. 
 existing `ScrollTrigger.refresh()` on load, `SmoothScrollProvider` scrolls to the
 `location.hash` target immediately; `scrollTo` again applies the section's
 `scroll-margin-top`. Under reduced motion no pins exist,
-so the native jump is already correct and nothing extra runs.
+so the native jump is already correct and nothing extra runs. The re-scroll runs on `load`, or
+immediately if the document has already finished loading (`document.readyState ===
+'complete'`), because hydration can finish after `load` has fired. It is skipped on a page
+reload, so the browser's restored scroll position wins. It runs only when the hash matches an
+element on the page.
 
 **Active section.** A new hook, `useActiveSection(ids)`, observes the given elements with a
 single `IntersectionObserver` using the band CourseNav already uses

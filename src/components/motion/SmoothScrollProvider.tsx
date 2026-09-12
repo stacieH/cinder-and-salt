@@ -53,18 +53,42 @@ export default function SmoothScrollProvider({ children }: SmoothScrollProviderP
         : Promise.resolve();
     fontsReady.then(refresh);
 
+    // A page can be reloaded without the Navigation Timing API, so a missing
+    // API is treated as "not a reload" rather than throwing.
+    const isReload = () => {
+      const entries =
+        typeof performance !== 'undefined' && performance.getEntriesByType
+          ? performance.getEntriesByType('navigation')
+          : [];
+      return (entries[0] as PerformanceNavigationTiming | undefined)?.type === 'reload';
+    };
+
     // A visit that arrives with a hash (a shared link, or a redirect from a
     // retired route) jumps natively before PinnedSequence has added its pin
     // spacing, so it lands short of the section. Re-scroll once the page and
-    // its images have loaded and the triggers have been refreshed.
+    // its images have loaded and the triggers have been refreshed. Run this
+    // immediately when the document has already finished loading, since
+    // hydration can pause and let `load` fire before this listener attaches.
+    // Skip a reload, so the browser's restored scroll position wins, and
+    // skip a hash that matches no element, so Lenis does not warn.
     const onLoad = () => {
       refresh();
-      if (!cancelled && window.location.hash) {
-        lenis.scrollTo(window.location.hash, { immediate: true });
+      const hash = window.location.hash;
+      if (
+        !cancelled &&
+        hash &&
+        document.getElementById(hash.slice(1)) &&
+        !isReload()
+      ) {
+        lenis.scrollTo(hash, { immediate: true });
       }
     };
 
-    window.addEventListener('load', onLoad);
+    if (document.readyState === 'complete') {
+      onLoad();
+    } else {
+      window.addEventListener('load', onLoad);
+    }
 
     return () => {
       cancelled = true;
