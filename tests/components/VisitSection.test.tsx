@@ -24,4 +24,11 @@ describe('VisitSection', () => {
     render(<VisitSection />);
     expect(screen.getByRole('button', { name: 'Send enquiry' })).toBeInTheDocument();
   });
+
+  it('shows the Google map of the venue area instead of a placeholder', () => {
+    render(<VisitSection />);
+
+    expect(screen.getByTitle(`Map of ${venue.name} in ${venue.mapQuery}`)).toBeInTheDocument();
+    expect(screen.queryByText('Map')).toBeNull();
+  });
 });

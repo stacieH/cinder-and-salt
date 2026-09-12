@@ -16,20 +16,9 @@
   align-items: start;
 }
 
-.venueBlocks > div + div:not(.map) {
+/* Even spacing between the address, hours, contact, and map blocks. */
+.venueBlocks > * + * {
   margin-top: var(--space-8);
-}
-
-.map {
-  margin-top: var(--space-6);
-  aspect-ratio: 4 / 3;
-  border: 1px solid var(--border);
-  display: grid;
-  place-items: center;
-  color: var(--ink-subtle);
-  font-size: var(--text-xs);
-  letter-spacing: var(--tracking-wide);
-  text-transform: uppercase;
 }
 
 @media (max-width: 899px) {

@@ -41,6 +41,8 @@ export interface Venue {
   address: string[];
   phone: string;
   email: string;
+  /** Place the embedded Google map searches for and gives directions to. */
+  mapQuery: string;
   hours: OpeningHours[];
 }
 

@@ -2,6 +2,7 @@ import Reveal from '@/components/motion/Reveal';
 import SplitHeading from '@/components/motion/SplitHeading';
 import EnquiryForm from '@/components/contact/EnquiryForm';
 import VenueDetails from '@/components/venue/VenueDetails';
+import VenueMap from '@/components/venue/VenueMap';
 import styles from './VisitSection.module.css';
 
 export default function VisitSection() {
@@ -12,10 +13,7 @@ export default function VisitSection() {
       <div className={styles.layout}>
         <Reveal className={styles.venueBlocks}>
           <VenueDetails />
-
-          <div className={styles.map} aria-hidden="true">
-            Map
-          </div>
+          <VenueMap />
         </Reveal>
 
         <Reveal>
