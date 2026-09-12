@@ -1,27 +1,32 @@
 :root {
-  /* Salt and cinder — salt-white surfaces, charcoal ink, one copper accent */
-  --ink: #1f1f1d;
-  --ink-muted: #5f5e5a;
-  --ink-subtle: #615f5a;
-  --ink-inverse: #f3f1ec;
-  --surface: #f3f1ec;
+  /* Native scrollbars, autofill, and form controls render in dark mode. */
+  color-scheme: dark;
+
+  /* Cinder — charcoal surfaces, salt-white ink, one copper accent */
+  --ink: #ece9e2;
+  --ink-muted: #a7a49c;
+  --ink-subtle: #97948c;
+  --ink-inverse: #1b1b1a;
+  --surface: #1b1b1a;
   /* RGB triplet of --surface, for rgba() layers derived from the palette
      instead of restating the hex as decimal. Keep in sync with --surface. */
-  --surface-rgb: 243, 241, 236;
-  --surface-raised: #e8e5dd;
-  --surface-veil: rgba(var(--surface-rgb), 0.85);
-  --accent: #a4481f;
-  --accent-strong: #8a3a17;
+  --surface-rgb: 27, 27, 26;
+  --surface-raised: #262624;
+  /* Opaque enough that --ink-muted nav links stay AA over a white photo pixel. */
+  --surface-veil: rgba(var(--surface-rgb), 0.92);
+  --accent: #e07a4c;
+  /* Hover state for accent buttons; lighter, since the button text is dark. */
+  --accent-strong: #eb956c;
   /* Decorative rules and dividers. */
-  --border: #c9c5bb;
+  --border: #3a3a37;
   /* Boundary for interactive controls: meets WCAG 1.4.11 (3:1) on both
      --surface and --surface-raised, which the decorative --border does not. */
-  --border-strong: #86837b;
-  --danger: #a8261b;
+  --border-strong: #7c7972;
+  --danger: #f19585;
 
-  /* Image contexts. A salt-white scrim cannot carry legible text over a
-     photograph, so the hero and the gallery lightbox use a cinder scrim with
-     light text. Contrast verified over a worst-case pure-white photo pixel. */
+  /* Image contexts: the hero and the gallery lightbox put text over
+     photographs, so they use a cinder scrim with light text. Contrast verified
+     over a worst-case pure-white photo pixel. */
   --scrim-rgb: 27, 27, 26;
   --on-image: #f3f1ec;
   --on-image-muted: #cfccc4;

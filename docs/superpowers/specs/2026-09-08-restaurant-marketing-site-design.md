@@ -55,7 +55,7 @@ Phases 2 and 3 each require their own design document and implementation plan.
 | `/gallery` | Interior and plating photography grid with lightbox | Staggered grid reveals; shared-element transition into the lightbox |
 | `/contact` | Hours, address, map placeholder, enquiry form | Reveal on scroll; inline-validated form with a mock submit |
 
-A shared shell provides a fixed header on a salt veil that shrinks on scroll, a footer with
+A shared shell provides a fixed header on a translucent charcoal veil that shrinks on scroll, a footer with
 hours and contact details, and animated transitions between all four routes.
 
 ## Architecture
@@ -131,11 +131,11 @@ course list) live in `src/lib/` so they are unit-testable without rendering Reac
 
 ## Visual system
 
-- **Palette:** salt-white base, charcoal cinder ink, and a single copper accent, defined as
-  custom properties in one token stylesheet so the entire look is tunable from one file.
-  Image contexts (the hero and the gallery lightbox) use a separate cinder scrim with light
-  text, because a salt-white scrim cannot carry legible text over a photograph. Every text
-  and control pairing meets WCAG AA, and form field boundaries meet 1.4.11 (3:1).
+- **Palette:** dark "Cinder" — charcoal base, salt-white ink, and a single copper accent,
+  defined as custom properties in one token stylesheet so the entire look is tunable from one
+  file. Image contexts (the hero and the gallery lightbox) use dedicated scrim and on-image
+  tokens so text over photographs stays legible independently of the page palette. Every
+  text and control pairing meets WCAG AA, and form field boundaries meet 1.4.11 (3:1).
 - **Typography:** Fraunces for headlines paired with Plus Jakarta Sans for body text, both
   self-hosted via `next/font` to avoid layout shift.
 - **Layout:** generous negative space, full-bleed imagery, restrained rules. Motion carries
