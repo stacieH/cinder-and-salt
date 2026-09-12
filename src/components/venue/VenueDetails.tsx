@@ -1,13 +1,10 @@
 import { venue } from '@/content/venue';
 import styles from './VenueDetails.module.css';
 
-// Shared between the Footer (every page) and the Contact page, which both
-// render the same address / hours / reach-us facts from the one `venue`
-// object. A Server Component with no props: both call sites want the same
-// content, and each controls its own surrounding layout (grid columns for
-// the footer, a stacked column with a "block" spacer for Contact) via CSS
-// targeting these plain, unclassed wrapper elements - identical to how the
-// Footer structured them before this extraction.
+// Rendered by the Visit us section (VisitSection). A Server Component with
+// no props: the section controls the surrounding layout (a stacked column
+// with a spacer between blocks) via CSS targeting these plain, unclassed
+// wrapper elements.
 export default function VenueDetails() {
   return (
     <>

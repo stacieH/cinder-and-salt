@@ -1,36 +1,78 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import Header from '@/components/layout/Header';
 import { venue } from '@/content/venue';
+import { installIntersectionObserverMock } from '../helpers/mockIntersectionObserver';
 
-jest.mock('next/navigation', () => ({
-  usePathname: () => '/menu',
-}));
+function renderWithSections() {
+  return render(
+    <>
+      <Header />
+      <section id="menu" />
+      <section id="gallery" />
+      <section id="about" />
+      <section id="contact" />
+    </>,
+  );
+}
+
+function sectionLinks() {
+  const nav = screen.getByRole('navigation', { name: 'Primary' });
+  return within(nav)
+    .getAllByRole('link')
+    .filter((link) => link.textContent !== 'Reserve');
+}
 
 describe('Header', () => {
-  it('renders the venue name and primary navigation', () => {
-    render(<Header />);
+  let io: ReturnType<typeof installIntersectionObserverMock>;
 
-    expect(screen.getByRole('link', { name: venue.name })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Menu' })).toHaveAttribute('href', '/menu');
-    expect(screen.getByRole('link', { name: 'Gallery' })).toHaveAttribute('href', '/gallery');
-    expect(screen.getByRole('link', { name: 'Contact' })).toHaveAttribute('href', '/contact');
+  beforeEach(() => {
+    io = installIntersectionObserverMock();
   });
 
-  it('exposes the current page to assistive technology via aria-current', () => {
-    render(<Header />);
-
-    expect(screen.getByRole('link', { name: 'Menu' })).toHaveAttribute('aria-current', 'page');
-    expect(screen.getByRole('link', { name: 'Gallery' })).not.toHaveAttribute('aria-current');
-    expect(screen.getByRole('link', { name: 'Contact' })).not.toHaveAttribute('aria-current');
+  afterEach(() => {
+    io.restore();
   });
 
-  it('points the reserve call to action at contact until booking exists', () => {
-    render(<Header />);
-    expect(screen.getByRole('link', { name: 'Reserve' })).toHaveAttribute('href', '/contact');
+  it('links the brand to the top of the page', () => {
+    renderWithSections();
+    expect(screen.getByRole('link', { name: venue.name })).toHaveAttribute('href', '/#top');
+  });
+
+  it('links each section in page order', () => {
+    renderWithSections();
+
+    expect(sectionLinks().map((link) => [link.textContent, link.getAttribute('href')])).toEqual([
+      ['Menu', '/#menu'],
+      ['Gallery', '/#gallery'],
+      ['About', '/#about'],
+      ['Contact', '/#contact'],
+    ]);
+  });
+
+  it('marks no link as current while no section is in view', () => {
+    renderWithSections();
+
+    sectionLinks().forEach((link) => {
+      expect(link).not.toHaveAttribute('aria-current');
+    });
+  });
+
+  it('marks the section in view with aria-current', () => {
+    renderWithSections();
+
+    io.setIntersecting('about', true);
+
+    const current = sectionLinks().filter((link) => link.getAttribute('aria-current') === 'true');
+    expect(current.map((link) => link.textContent)).toEqual(['About']);
+  });
+
+  it('points the reserve call to action at the contact section until booking exists', () => {
+    renderWithSections();
+    expect(screen.getByRole('link', { name: 'Reserve' })).toHaveAttribute('href', '/#contact');
   });
 
   it('marks itself scrolled once the page moves', () => {
-    const { container } = render(<Header />);
+    const { container } = renderWithSections();
     const header = container.querySelector('header') as HTMLElement;
 
     expect(header.dataset.scrolled).toBe('false');

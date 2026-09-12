@@ -1,18 +1,12 @@
 'use client';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { venue } from '@/content/venue';
+import { useActiveSection } from '@/hooks/useActiveSection';
+import { SECTION_IDS, SECTION_LINKS, sectionHref } from '@/lib/sections';
 import styles from './Header.module.css';
 
-const NAV_LINKS = [
-  { href: '/menu', label: 'Menu' },
-  { href: '/gallery', label: 'Gallery' },
-  { href: '/contact', label: 'Contact' },
-];
-
 export default function Header() {
-  const pathname = usePathname();
+  const active = useActiveSection(SECTION_IDS);
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -23,31 +17,37 @@ export default function Header() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  // Plain anchors, not next/link: every link targets a section of this one
+  // page, and Lenis's `anchors` option (SmoothScrollProvider) smooth-scrolls
+  // same-page links itself.
   return (
     <header className={styles.header} data-scrolled={scrolled}>
       <div className={styles.inner}>
-        <Link href="/" className={styles.brand} transitionTypes={['nav-back']}>
+        <a href={sectionHref('top')} className={styles.brand}>
           {venue.name}
-        </Link>
+        </a>
 
-        <nav className={styles.nav}>
+        <nav className={styles.nav} aria-label="Primary">
           <div className={styles.links}>
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={styles.link}
-                data-active={pathname === link.href}
-                aria-current={pathname === link.href ? 'page' : undefined}
-                transitionTypes={['nav-forward']}
-              >
-                {link.label}
-              </Link>
-            ))}
+            {SECTION_LINKS.map((link) => {
+              const isActive = active === link.id;
+
+              return (
+                <a
+                  key={link.id}
+                  href={sectionHref(link.id)}
+                  className={styles.link}
+                  data-active={isActive}
+                  aria-current={isActive ? 'true' : undefined}
+                >
+                  {link.label}
+                </a>
+              );
+            })}
           </div>
-          <Link href="/contact" className={styles.reserve} transitionTypes={['nav-forward']}>
+          <a href={sectionHref('contact')} className={styles.reserve}>
             Reserve
-          </Link>
+          </a>
         </nav>
       </div>
     </header>
