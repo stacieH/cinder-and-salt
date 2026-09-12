@@ -2,6 +2,10 @@
   position: relative;
   overflow-x: auto;
   scrollbar-width: none;
+  /* Unpinned (narrow screens, reduced motion), the track is swiped by hand:
+     snap each panel into place instead of stopping mid-card. */
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--gutter);
 }
 
 .viewport::-webkit-scrollbar {
@@ -17,11 +21,12 @@
    active while the pin genuinely exists. */
 .viewport[data-pinned='true'] {
   overflow: hidden;
+  scroll-snap-type: none;
 }
 
 .track {
   display: flex;
   gap: var(--space-6);
   align-items: stretch;
-  padding: 0 var(--space-6);
+  padding: 0 var(--gutter);
 }

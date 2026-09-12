@@ -135,7 +135,7 @@ export default function GalleryGrid({ images }: GalleryGridProps) {
             Close
           </button>
 
-          <div onClick={(event) => event.stopPropagation()}>
+          <div className={styles.stage} onClick={(event) => event.stopPropagation()}>
             <ViewTransition name={`gallery-${open.id}`} share="morph" default="none">
               <figure className={styles.figure}>
                 <Image

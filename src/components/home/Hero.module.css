@@ -1,6 +1,8 @@
 .hero {
   position: relative;
   min-height: 100vh;
+  /* Small-viewport height: mobile browser toolbars no longer push the bottom of the hero off screen. */
+  min-height: 100svh;
   display: flex;
   align-items: flex-end;
   overflow: hidden;
@@ -33,7 +35,7 @@
   width: 100%;
   max-width: var(--content-max);
   margin: 0 auto;
-  padding: 0 var(--space-6) var(--space-12);
+  padding: 0 var(--gutter) var(--space-12);
 }
 
 .eyebrow {
@@ -45,7 +47,7 @@
 }
 
 .title {
-  font-size: var(--text-3xl);
+  font-size: var(--text-4xl);
   max-width: 16ch;
 }
 
@@ -54,10 +56,4 @@
   max-width: 46ch;
   color: var(--on-image-muted);
   font-size: var(--text-lg);
-}
-
-@media (min-width: 1100px) {
-  .title {
-    font-size: var(--text-4xl);
-  }
 }

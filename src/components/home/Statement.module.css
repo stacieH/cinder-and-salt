@@ -1,7 +1,7 @@
 .statement {
   max-width: 900px;
   margin: 0 auto;
-  padding: var(--space-16) var(--space-6);
+  padding: var(--section-space) var(--gutter);
   text-align: center;
 }
 

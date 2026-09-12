@@ -1,6 +1,7 @@
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  /* min() lets a single column shrink below 300px on the narrowest phones. */
+  grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
   gap: var(--space-4);
 }
 
@@ -34,10 +35,20 @@
   background: rgba(var(--scrim-rgb), 0.92);
 }
 
+/* The wrapper around the figure and caption. As a flex item of the overlay
+   it would otherwise shrink to fit its content, and the figure (whose image
+   is absolutely positioned) has no content width of its own. */
+.stage {
+  width: min(1200px, 100%);
+}
+
 .figure {
   position: relative;
-  width: min(1200px, 100%);
+  width: 100%;
   aspect-ratio: 3 / 2;
+  /* Leave room for the close button and caption on short or landscape screens. */
+  max-height: calc(100vh - 12rem);
+  margin: 0;
 }
 
 .full {

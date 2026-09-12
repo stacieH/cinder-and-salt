@@ -1,11 +1,11 @@
 .section {
-  padding: var(--space-10) 0 var(--space-16);
+  padding: var(--space-10) 0 var(--section-space);
 }
 
 .header {
   max-width: var(--content-max);
   margin: 0 auto var(--space-8);
-  padding: 0 var(--space-6);
+  padding: 0 var(--gutter);
 }
 
 .eyebrow {
@@ -23,6 +23,7 @@
   flex: 0 0 min(78vw, 460px);
   display: flex;
   flex-direction: column;
+  scroll-snap-align: start;
 }
 
 .frame {

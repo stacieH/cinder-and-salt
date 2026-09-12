@@ -19,7 +19,7 @@
   width: 100%;
   max-width: var(--content-max);
   margin: 0 auto;
-  padding: 0 var(--space-6);
+  padding: 0 var(--gutter);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -36,6 +36,14 @@
 }
 
 .nav {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+/* Holds the section links and Reserve: an inline row on wider screens, the
+   dropdown panel on phones. */
+.menu {
   display: flex;
   align-items: center;
   gap: var(--space-6);
@@ -80,18 +88,113 @@
   background: var(--accent-strong);
 }
 
+.toggle {
+  display: none;
+}
+
 @media (max-width: 820px) {
-  .nav {
-    gap: var(--space-3);
+  .menu,
+  .links {
+    gap: var(--space-4);
+  }
+}
+
+/* Phones: the links and Reserve collapse behind a menu button and drop down
+   under the header. Keep this breakpoint in sync with PHONE_MENU_QUERY in
+   Header.tsx. */
+@media (max-width: 719px) {
+  .toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    margin-right: calc(var(--space-2) * -1);
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
+  }
+
+  .toggleBars,
+  .toggleBars::before,
+  .toggleBars::after {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background: currentColor;
+    transition: transform 200ms ease, background-color 200ms ease;
+  }
+
+  .toggleBars {
+    position: relative;
+  }
+
+  .toggleBars::before,
+  .toggleBars::after {
+    content: '';
+    position: absolute;
+    left: 0;
+  }
+
+  .toggleBars::before {
+    top: -7px;
+  }
+
+  .toggleBars::after {
+    top: 7px;
+  }
+
+  /* Open: the outer bars cross into an X and the middle bar disappears. */
+  .toggle[aria-expanded='true'] .toggleBars {
+    background: transparent;
+  }
+
+  .toggle[aria-expanded='true'] .toggleBars::before {
+    transform: translateY(7px) rotate(45deg);
+  }
+
+  .toggle[aria-expanded='true'] .toggleBars::after {
+    transform: translateY(-7px) rotate(-45deg);
+  }
+
+  .menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: var(--space-2) var(--gutter) var(--space-5);
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .menu[data-open='true'] {
+    display: flex;
   }
 
   .links {
-    gap: var(--space-4);
-    overflow-x: auto;
-    scrollbar-width: none;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
   }
 
-  .links::-webkit-scrollbar {
-    display: none;
+  .link {
+    display: flex;
+    align-items: center;
+    min-height: 48px;
+    font-size: var(--text-sm);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .reserve {
+    margin-top: var(--space-5);
+    padding: var(--space-4) var(--space-5);
+    font-size: var(--text-sm);
+    text-align: center;
   }
 }

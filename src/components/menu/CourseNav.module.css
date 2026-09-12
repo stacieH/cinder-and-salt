@@ -24,7 +24,14 @@
     position: static;
     flex-direction: row;
     flex-wrap: wrap;
-    gap: var(--space-4);
-    margin-bottom: var(--space-8);
+    gap: 0 var(--space-5);
+    margin-bottom: var(--space-6);
+  }
+
+  /* Touch-sized targets once the course list is a row of tappable labels. */
+  .link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
   }
 }

@@ -1,7 +1,7 @@
 .section {
   max-width: var(--content-max);
   margin: 0 auto;
-  padding: var(--space-16) var(--space-6);
+  padding: var(--section-space) var(--gutter);
 }
 
 .title {
@@ -63,5 +63,13 @@
 @media (max-width: 899px) {
   .layout {
     grid-template-columns: 1fr;
+  }
+
+  .intro {
+    margin-bottom: var(--space-8);
+  }
+
+  .course {
+    padding-bottom: var(--space-10);
   }
 }

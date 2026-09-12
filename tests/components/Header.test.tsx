@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import Header from '@/components/layout/Header';
 import { venue } from '@/content/venue';
 import { installIntersectionObserverMock } from '../helpers/mockIntersectionObserver';
@@ -81,5 +81,104 @@ describe('Header', () => {
     fireEvent.scroll(window);
 
     expect(header.dataset.scrolled).toBe('true');
+  });
+});
+
+describe('Header phone menu', () => {
+  let io: ReturnType<typeof installIntersectionObserverMock>;
+
+  beforeEach(() => {
+    io = installIntersectionObserverMock();
+  });
+
+  afterEach(() => {
+    io.restore();
+  });
+
+  const toggle = () => screen.getByRole('button', { name: 'Navigation' });
+  const menu = () => document.getElementById('site-menu') as HTMLElement;
+
+  it('starts collapsed and controls a list holding every section link and Reserve', () => {
+    renderWithSections();
+
+    expect(toggle()).toHaveAttribute('aria-expanded', 'false');
+    expect(toggle()).toHaveAttribute('aria-controls', 'site-menu');
+    expect(within(menu()).getAllByRole('link').map((link) => link.textContent)).toEqual([
+      'Menu',
+      'Gallery',
+      'About',
+      'Contact',
+      'Reserve',
+    ]);
+  });
+
+  it('opens and closes from the toggle', () => {
+    renderWithSections();
+
+    fireEvent.click(toggle());
+    expect(toggle()).toHaveAttribute('aria-expanded', 'true');
+    expect(menu()).toHaveAttribute('data-open', 'true');
+
+    fireEvent.click(toggle());
+    expect(toggle()).toHaveAttribute('aria-expanded', 'false');
+    expect(menu()).toHaveAttribute('data-open', 'false');
+  });
+
+  it('closes when a section link or Reserve is chosen', () => {
+    renderWithSections();
+
+    fireEvent.click(toggle());
+    fireEvent.click(within(menu()).getByRole('link', { name: 'Gallery' }));
+    expect(toggle()).toHaveAttribute('aria-expanded', 'false');
+
+    fireEvent.click(toggle());
+    fireEvent.click(within(menu()).getByRole('link', { name: 'Reserve' }));
+    expect(toggle()).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('closes on Escape and returns focus to the toggle', () => {
+    renderWithSections();
+
+    fireEvent.click(toggle());
+    fireEvent.keyDown(document, { key: 'Escape' });
+
+    expect(toggle()).toHaveAttribute('aria-expanded', 'false');
+    expect(toggle()).toHaveFocus();
+  });
+
+  it('closes on a tap outside the header but not on a tap inside it', () => {
+    renderWithSections();
+
+    fireEvent.click(toggle());
+    fireEvent.pointerDown(within(menu()).getByRole('link', { name: 'About' }));
+    expect(toggle()).toHaveAttribute('aria-expanded', 'true');
+
+    fireEvent.pointerDown(document.getElementById('gallery') as HTMLElement);
+    expect(toggle()).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('closes when the viewport widens past the phone breakpoint', () => {
+    const original = window.matchMedia;
+    const changeListeners: Array<() => void> = [];
+    const media = {
+      matches: true,
+      media: '(max-width: 719px)',
+      addEventListener: (_type: string, listener: () => void) => changeListeners.push(listener),
+      removeEventListener: jest.fn(),
+    };
+    window.matchMedia = jest.fn().mockReturnValue(media);
+
+    try {
+      renderWithSections();
+      fireEvent.click(toggle());
+      expect(toggle()).toHaveAttribute('aria-expanded', 'true');
+
+      media.matches = false;
+      act(() => changeListeners.forEach((listener) => listener()));
+
+      expect(toggle()).toHaveAttribute('aria-expanded', 'false');
+    } finally {
+      window.matchMedia = original;
+    }
   });
 });
