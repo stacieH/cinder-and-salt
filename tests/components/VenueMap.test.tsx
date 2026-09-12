@@ -8,7 +8,7 @@ const title = `Map of ${venue.name} in ${venue.mapArea}`;
 describe('VenueMap', () => {
   it('places the invented venue in Poblacion, Makati', () => {
     expect(venue.mapArea).toBe('Poblacion, Makati City');
-    expect(venue.coordinates).toEqual({ lat: 14.5647, lng: 121.0294 });
+    expect(venue.coordinates).toEqual({ lat: 14.5653, lng: 121.0288 });
   });
 
   it('embeds a titled, lazy-loaded map centred on the venue coordinates', () => {

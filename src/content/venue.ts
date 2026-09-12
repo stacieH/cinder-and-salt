@@ -7,10 +7,11 @@ export const venue: Venue = {
   phone: '+63 2 8123 4567',
   email: 'reserve@cinderandsalt.example',
   // The street address above is fictional, so the map marks an invented spot
-  // in Poblacion: Kalayaan Avenue at Makati Avenue. Replace both with the real
-  // location once there is one.
+  // in Poblacion: inside the block between General Luna Street and Kalayaan
+  // Avenue, just west of Makati Avenue, clear of the roads. Replace both with
+  // the real location once there is one.
   mapArea: 'Poblacion, Makati City',
-  coordinates: { lat: 14.5647, lng: 121.0294 },
+  coordinates: { lat: 14.5653, lng: 121.0288 },
   hours: [
     { days: 'Tuesday — Thursday', time: '18:00 — 23:00' },
     { days: 'Friday — Saturday', time: '17:30 — 00:30' },
