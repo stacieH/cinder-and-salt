@@ -12,13 +12,15 @@ still applies.
 Convert the Cinder & Salt marketing site from four routes (`/`, `/menu`, `/gallery`,
 `/contact`) into one scrolling page. The header links scroll to sections instead of changing
 routes, the old URLs redirect to those sections, and the route slide transitions are removed.
-Content, palette, typography, and the scroll-driven motion stay as they are.
+The About page, removed in the rebrand, returns as a section with no chef content. Otherwise
+content, palette, typography, and the scroll-driven motion stay as they are.
 
 ## Goals
 
-- Every piece of content (the full menu, gallery, and contact details) on a single page.
+- Every piece of content (the full menu, gallery, the restaurant's story, and contact details)
+  on a single page.
 - Header navigation that smooth-scrolls to sections and shows which section is in view.
-- Old `/menu`, `/gallery`, and `/contact` links keep working.
+- Old `/menu`, `/gallery`, `/about`, and `/contact` links keep working.
 - No regression in the robustness rules: content is never permanently invisible, and reduced
   motion is honored.
 
@@ -26,7 +28,8 @@ Content, palette, typography, and the scroll-driven motion stay as they are.
 
 - Updating the URL hash while the visitor scrolls.
 - Any replacement for the route slide transitions.
-- Content, palette, or typography changes.
+- Palette or typography changes.
+- Chef content: no chef name, role, portrait, or `Chef` type.
 
 ## Page structure
 
@@ -39,6 +42,7 @@ Sections render in this order from `src/app/page.tsx`:
 | — | Signatures (pinned horizontal sequence) | `h2` "Plates worth the trip" |
 | `#menu` | Full menu: all 19 dishes in 5 courses, sticky course navigation | `h2` "The Menu"; courses `h3`; dish names `h4` |
 | `#gallery` | Gallery grid with lightbox | `h2` "The Room" |
+| `#about` | The restaurant's story and a four-entry timeline, text only | `h2` "Built around the grill"; milestone titles `h3` |
 | `#contact` | Visit us: hours, address, map placeholder, enquiry form | `h2` "Visit us" |
 | — | Footer | — |
 
@@ -46,19 +50,49 @@ Course anchors (`#starters`, `#mains`, `#sides`, `#desserts`, `#drinks`) are unc
 not collide with section anchors.
 
 **Footer.** The footer currently repeats the venue details, which would appear twice in a row
-beneath Visit us. It becomes slim: the brand name, links to the three sections, and the
+beneath Visit us. It becomes slim: the brand name, links to the four sections, and the
 copyright line. Venue details live only in the Visit us section.
 
 **Metadata.** One title and description, set in `src/app/layout.tsx`. Per-page `metadata`
 exports disappear with the route files.
 
-**Header links.** The brand links to `/#top`; Menu, Gallery, and Contact link to `/#menu`,
-`/#gallery`, and `/#contact`; Reserve links to `/#contact`. Links start with `/` so they also
-work from the 404 page.
+**Header links.** The brand links to `/#top`. Menu, Gallery, About, and Contact, in page
+order, link to `/#menu`, `/#gallery`, `/#about`, and `/#contact`; Reserve links to
+`/#contact`. Links start with `/` so they also work from the 404 page.
 
-**Redirects.** `next.config.js` declares permanent redirects from `/menu`, `/gallery`, and
-`/contact` to `/#menu`, `/#gallery`, and `/#contact`. Next.js preserves the fragment in a
+**Redirects.** `next.config.js` declares permanent redirects from `/menu`, `/gallery`,
+`/about`, and `/contact` to `/#menu`, `/#gallery`, `/#about`, and `/#contact`. `/about` is
+included because that URL existed before the rebrand. Next.js preserves the fragment in a
 redirect destination (`prepare-destination` appends the parsed hash).
+
+## About section
+
+The About section sits between the gallery and Visit us, so the story reaches guests who are
+close to booking. It is text only: two story paragraphs, centered at about 60 characters, then
+a four-entry timeline. Paragraphs reveal together and milestones reveal one at a time. The copy
+is new; nothing is carried over from the removed page, which told the chef's story in the
+earlier brand's wording.
+
+**Heading:** "Built around the grill" (`h2`).
+
+**Story**
+
+1. Cinder & Salt started as a weekend supper club: one charcoal grill, a crate of flake salt,
+   and twelve borrowed chairs. The idea has not changed since — cook over live flame, season
+   simply, and let what arrives each morning decide the menu.
+2. Everything still passes through one grill. Vegetables char beside the ribeye, bread toasts
+   over the last of the coals, and every plate leaves the pass while it is still hot.
+
+**Timeline**
+
+| Year | Title (`h3`) | Body |
+| --- | --- | --- |
+| 2016 | Weekend supper club | Twelve seats around a charcoal grill in a Poblacion courtyard, open on Saturdays only. |
+| 2019 | Cinderwood Lane | The first permanent room opened at 27 Cinderwood Lane, with the grill in full view of every table. |
+| 2022 | Farms and day boats | Produce and seafood now come directly from partner farms and day boats, with no distributors in between. |
+| 2026 | Cinder & Salt today | One live-flame menu, served six nights a week. |
+
+"Six nights" matches the venue hours, which close on Mondays.
 
 ## Navigation and scrolling
 
@@ -77,7 +111,7 @@ so the native jump is already correct and nothing extra runs.
 single `IntersectionObserver` using the band CourseNav already uses
 (`rootMargin: '-40% 0px -55% 0px'`) and returns the id in view, or `null`.
 
-- The header uses it for `menu`, `gallery`, and `contact`. The active link gets
+- The header uses it for `menu`, `gallery`, `about`, and `contact`. The active link gets
   `data-active` and `aria-current="true"`. Over the hero, statement, and signatures no link is
   active.
 - `CourseNav` switches to the same hook and adds `aria-current="true"` to the active course
@@ -109,11 +143,15 @@ hidden.
 - `src/components/gallery/GallerySection.tsx` and CSS module, from `src/app/gallery/`.
 - `src/components/contact/VisitSection.tsx` and CSS module, from `src/app/contact/`.
 - `src/hooks/useActiveSection.ts`.
+- `src/content/about.ts`, exporting `about { title, story, milestones }`, and a `Milestone`
+  type (`year`, `title`, `body`) in `src/types/index.ts`.
+- `src/components/about/AboutSection.tsx` and CSS module. Timeline styles come from the removed
+  `about.module.css`; its portrait grid, name, and role styles are not restored.
 
 **Changed**
 
 - `src/app/page.tsx` composes every section.
-- `next.config.js` adds the three redirects.
+- `next.config.js` adds the four redirects.
 - `Header.tsx` uses section links, the hook, and plain anchors.
 - `Footer.tsx` and its CSS become the slim footer.
 - `CourseNav.tsx` uses the hook and sets `aria-current`.
@@ -132,9 +170,11 @@ hidden.
 
 - **New:** `useActiveSection` reports the intersecting section and `null` when none is.
   `MenuSection` renders all 19 dishes across 5 courses with the heading levels above.
-  `VisitSection` renders venue details and the enquiry form. `next.config.js` returns the
-  three permanent redirects. `Footer` renders the section links and no venue details.
-- **Updated:** `Header` asserts `/#…` hrefs and `aria-current` following the active section,
+  `VisitSection` renders venue details and the enquiry form. `AboutSection` renders both story
+  paragraphs and four milestones with `h2` and `h3` headings, and no image. `next.config.js`
+  returns the four permanent redirects. `Footer` renders the four section links and no venue
+  details.
+- **Updated:** `Header` asserts the four `/#…` section hrefs in page order and `aria-current` following the active section,
   without a `usePathname` mock. `CourseNav` asserts `aria-current`. `SmoothScrollProvider`
   asserts the `anchors` and `autoToggle` options and the hash re-scroll. `GalleryGrid` asserts
   the lock on `<html>`.
