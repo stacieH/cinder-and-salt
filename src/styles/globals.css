@@ -31,13 +31,15 @@ main {
 h1,
 h2,
 h3,
+h4,
 p {
   margin: 0;
 }
 
 h1,
 h2,
-h3 {
+h3,
+h4 {
   font-family: var(--font-display), Georgia, serif;
   font-weight: 400;
   line-height: var(--leading-tight);
