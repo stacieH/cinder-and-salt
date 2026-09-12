@@ -4,6 +4,8 @@
 **Status:** Approved for planning
 **Phase:** 1 of 3 (marketing site)
 **Brand:** Cinder & Salt. Rebranded 2026-09-12; the About page was removed in that rebrand.
+**Superseded in part:** the site became a single scrolling page on 2026-09-12. The Routes and
+Route transitions sections below are replaced by `2026-09-12-one-page-site-design.md`.
 
 ## Summary
 
