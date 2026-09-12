@@ -4,6 +4,10 @@ import { Fraunces, Plus_Jakarta_Sans } from 'next/font/google';
 import SmoothScrollProvider from '@/components/motion/SmoothScrollProvider';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
+// Lenis's stylesheet makes overflow changes on <html> fire the transition
+// event its autoToggle option listens for. Imported before globals.css so
+// the site's own rules win any overlap.
+import 'lenis/dist/lenis.css';
 import '../styles/globals.css';
 
 const display = Fraunces({

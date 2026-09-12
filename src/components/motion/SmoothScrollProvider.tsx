@@ -12,7 +12,18 @@ export default function SmoothScrollProvider({ children }: SmoothScrollProviderP
   useEffect(() => {
     if (prefersReducedMotion()) return undefined;
 
-    const lenis = new Lenis({ duration: 1.1, smoothWheel: true });
+    const lenis = new Lenis({
+      duration: 1.1,
+      smoothWheel: true,
+      // Same-page links such as /#menu smooth-scroll. Lenis applies each
+      // target's scroll-margin-top, so the stop point below the fixed header
+      // is set once, in CSS (globals.css).
+      anchors: true,
+      // Pause while the root element's overflow is hidden, which is how the
+      // gallery lightbox locks the page. Depends on lenis/dist/lenis.css,
+      // imported in the root layout.
+      autoToggle: true,
+    });
 
     // Lenis owns the scroll position, so ScrollTrigger must read from it
     // rather than from the native scroll event, and both must advance on a
@@ -42,11 +53,22 @@ export default function SmoothScrollProvider({ children }: SmoothScrollProviderP
         : Promise.resolve();
     fontsReady.then(refresh);
 
-    window.addEventListener('load', refresh);
+    // A visit that arrives with a hash (a shared link, or a redirect from a
+    // retired route) jumps natively before PinnedSequence has added its pin
+    // spacing, so it lands short of the section. Re-scroll once the page and
+    // its images have loaded and the triggers have been refreshed.
+    const onLoad = () => {
+      refresh();
+      if (!cancelled && window.location.hash) {
+        lenis.scrollTo(window.location.hash, { immediate: true });
+      }
+    };
+
+    window.addEventListener('load', onLoad);
 
     return () => {
       cancelled = true;
-      window.removeEventListener('load', refresh);
+      window.removeEventListener('load', onLoad);
       gsap.ticker.remove(advance);
       lenis.destroy();
     };

@@ -4,6 +4,7 @@ jest.mock('lenis', () => {
     default: jest.fn().mockImplementation(() => ({
       on: jest.fn(),
       raf: jest.fn(),
+      scrollTo: jest.fn(),
       destroy: jest.fn(),
     })),
   };
@@ -155,5 +156,52 @@ describe('SmoothScrollProvider', () => {
     expect(removeEventListenerSpy).toHaveBeenCalledWith('load', expect.any(Function));
 
     removeEventListenerSpy.mockRestore();
+  });
+
+  it('enables anchor scrolling and pauses itself while the root overflow is hidden', () => {
+    render(
+      <SmoothScrollProvider>
+        <p>Dining room</p>
+      </SmoothScrollProvider>,
+    );
+
+    expect(MockedLenis).toHaveBeenCalledWith(
+      expect.objectContaining({ anchors: true, autoToggle: true }),
+    );
+  });
+
+  it('re-scrolls to the URL hash once the page has loaded', () => {
+    const refreshSpy = jest.spyOn(ScrollTrigger, 'refresh').mockImplementation(() => {});
+    window.history.replaceState(null, '', '/#menu');
+
+    render(
+      <SmoothScrollProvider>
+        <p>Dining room</p>
+      </SmoothScrollProvider>,
+    );
+    window.dispatchEvent(new Event('load'));
+
+    const lenisInstance = MockedLenis.mock.results[0].value;
+    expect(lenisInstance.scrollTo).toHaveBeenCalledWith('#menu', { immediate: true });
+
+    window.history.replaceState(null, '', '/');
+    refreshSpy.mockRestore();
+  });
+
+  it('does not scroll on load when the URL has no hash', () => {
+    const refreshSpy = jest.spyOn(ScrollTrigger, 'refresh').mockImplementation(() => {});
+    window.history.replaceState(null, '', '/');
+
+    render(
+      <SmoothScrollProvider>
+        <p>Dining room</p>
+      </SmoothScrollProvider>,
+    );
+    window.dispatchEvent(new Event('load'));
+
+    const lenisInstance = MockedLenis.mock.results[0].value;
+    expect(lenisInstance.scrollTo).not.toHaveBeenCalled();
+
+    refreshSpy.mockRestore();
   });
 });
