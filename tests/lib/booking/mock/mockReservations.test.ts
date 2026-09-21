@@ -1,13 +1,18 @@
 import { ApiError } from '@/lib/api/client';
 import type { MockContext } from '@/lib/booking/mock/mockContext';
 import {
+  cancelReservation,
   changeCutoffAt,
+  changeReservation,
   createReservation,
+  findByToken,
   manageHref,
+  toDemoRow,
   toSummary,
 } from '@/lib/booking/mock/mockReservations';
 import type { BookingDemoState } from '@/lib/booking/mock/mockStore';
 import { seedVenue } from '@/lib/booking/mock/mockVenue';
+import { formatDateTime, formatPartySize } from '@/lib/booking/time';
 import type { CreateReservationRequest } from '@/lib/booking/types';
 
 /** Friday 2 October 2026, 5:00 PM in Manila. The venue opens at 5:30 PM on Fridays. */
@@ -67,6 +72,9 @@ describe('createReservation', () => {
       subject: 'Your table at Cinder & Salt is booked',
     });
     expect(state.outbox[0].body).toContain(booking.reference);
+    expect(state.outbox[0].body).toBe(
+      `Booking ${booking.reference} for ${formatPartySize(4)} on ${formatDateTime(SATURDAY_6PM)}.`,
+    );
     expect(state.outbox[0].links[0]).toEqual({
       label: 'Change or cancel your booking',
       href: manageHref(booking.manageToken),
@@ -201,5 +209,237 @@ describe('toSummary', () => {
     const booking = { ...book(state), status: 'CANCELLED' as const };
 
     expect(toSummary(booking, FRIDAY_5PM, state.rules).canChange).toBe(false);
+  });
+});
+
+describe('findByToken', () => {
+  it('finds a booking by its manage token', () => {
+    const state = seedVenue('QUIET_WEEK', FRIDAY_5PM);
+    const booking = book(state);
+
+    expect(findByToken(state, booking.manageToken).reference).toBe(booking.reference);
+  });
+
+  it('refuses an unknown token with RESERVATION_NOT_FOUND', () => {
+    const state = seedVenue('QUIET_WEEK', FRIDAY_5PM);
+
+    expect(() => findByToken(state, 'not-a-token')).toThrow(
+      expect.objectContaining({ errorCode: 'RESERVATION_NOT_FOUND', status: 404 }),
+    );
+  });
+});
+
+describe('changeReservation', () => {
+  // 120 minutes after SATURDAY_6PM, clear of its seating so the single-table
+  // tests below can prove a moved booking really frees its old time.
+  const laterSaturday = '2026-10-03T12:00:00Z';
+
+  it('moves the booking, keeps its reference, and emails the new details', () => {
+    const state = seedVenue('QUIET_WEEK', FRIDAY_5PM);
+    const booking = book(state);
+    const ctx = context();
+
+    const changed = changeReservation(state, ctx, booking.manageToken, {
+      startsAt: laterSaturday,
+      partySize: 2,
+      notes: 'Table by the window',
+    });
+
+    expect(changed.reference).toBe(booking.reference);
+    expect(changed.startsAt).toBe(laterSaturday);
+    expect(changed.endsAt).toBe('2026-10-03T14:00:00Z');
+    expect(changed.partySize).toBe(2);
+    expect(changed.notes).toBe('Table by the window');
+    expect(changed.changedAt).toBe(FRIDAY_5PM.toISOString());
+    expect(state.outbox[0]).toMatchObject({ subject: 'Your booking at Cinder & Salt has changed' });
+    expect(state.outbox[0].body).toBe(
+      `Booking ${changed.reference} is now for ${formatPartySize(2)} on ${formatDateTime(laterSaturday)}.`,
+    );
+  });
+
+  it('gives back the table it was holding, so the old time frees up', () => {
+    const state = seedVenue('QUIET_WEEK', FRIDAY_5PM);
+    state.tables = [{ id: 't1', name: 'T1', seats: 2 }];
+    state.combinations = [];
+    const booking = book(state, { partySize: 2 });
+
+    changeReservation(state, context(), booking.manageToken, {
+      startsAt: laterSaturday,
+      partySize: 2,
+      notes: '',
+    });
+
+    expect(book(state, { partySize: 2 }, 'key-2').startsAt).toBe(SATURDAY_6PM);
+  });
+
+  it('keeps the booking’s own table when it only changes the notes', () => {
+    const state = seedVenue('QUIET_WEEK', FRIDAY_5PM);
+    state.tables = [{ id: 't1', name: 'T1', seats: 2 }];
+    state.combinations = [];
+    const booking = book(state, { partySize: 2 });
+
+    const changed = changeReservation(state, context(), booking.manageToken, {
+      startsAt: SATURDAY_6PM,
+      partySize: 2,
+      notes: 'Same time, new note',
+    });
+
+    expect(changed.tableIds).toEqual(['t1']);
+  });
+
+  it('refuses a change after the cutoff', () => {
+    const state = seedVenue('QUIET_WEEK', FRIDAY_5PM);
+    const booking = book(state);
+    const insideCutoff = new Date(Date.parse(SATURDAY_6PM) - 30 * 60_000);
+
+    expect(() =>
+      changeReservation(state, context(insideCutoff), booking.manageToken, {
+        startsAt: laterSaturday,
+        partySize: 4,
+        notes: '',
+      }),
+    ).toThrow(
+      expect.objectContaining({
+        errorCode: 'CHANGE_CUTOFF_PASSED',
+        status: 409,
+        message: 'Online changes have closed for this booking.',
+      }),
+    );
+  });
+
+  it('refuses a change to a cancelled booking', () => {
+    const state = seedVenue('QUIET_WEEK', FRIDAY_5PM);
+    const booking = book(state);
+    cancelReservation(state, context(), booking.manageToken);
+
+    expect(() =>
+      changeReservation(state, context(), booking.manageToken, {
+        startsAt: laterSaturday,
+        partySize: 4,
+        notes: '',
+      }),
+    ).toThrow(
+      expect.objectContaining({
+        errorCode: 'RESERVATION_NOT_CHANGEABLE',
+        status: 409,
+        message: 'This booking can no longer be changed.',
+      }),
+    );
+  });
+
+  it('refuses a time nothing is free at, and leaves the booking as it was', () => {
+    const state = seedVenue('QUIET_WEEK', FRIDAY_5PM);
+    state.tables = [{ id: 't1', name: 'T1', seats: 2 }];
+    state.combinations = [];
+    // One shared context, so the two bookings below get distinct ids: a fresh
+    // context's random sequence always restarts at the same values, and two
+    // bookings with the same id would let the second wrongly exclude itself.
+    const ctx = context();
+    const booking = book(state, { partySize: 2 }, 'key-1', ctx);
+    book(state, { partySize: 2, startsAt: laterSaturday }, 'key-2', ctx);
+
+    expect(() =>
+      changeReservation(state, context(), booking.manageToken, {
+        startsAt: laterSaturday,
+        partySize: 2,
+        notes: '',
+      }),
+    ).toThrow(expect.objectContaining({ errorCode: 'SLOT_UNAVAILABLE' }));
+    expect(findByToken(state, booking.manageToken).startsAt).toBe(SATURDAY_6PM);
+  });
+
+  it('refuses a party above the online maximum', () => {
+    const state = seedVenue('QUIET_WEEK', FRIDAY_5PM);
+    const booking = book(state);
+
+    expect(() =>
+      changeReservation(state, context(), booking.manageToken, {
+        startsAt: laterSaturday,
+        partySize: 9,
+        notes: '',
+      }),
+    ).toThrow(expect.objectContaining({ errorCode: 'PARTY_TOO_LARGE' }));
+  });
+
+  it('checks the notes length', () => {
+    const state = seedVenue('QUIET_WEEK', FRIDAY_5PM);
+    const booking = book(state);
+
+    expect(() =>
+      changeReservation(state, context(), booking.manageToken, {
+        startsAt: laterSaturday,
+        partySize: 4,
+        notes: 'x'.repeat(501),
+      }),
+    ).toThrow(
+      expect.objectContaining({
+        errorCode: 'VALIDATION_FAILED',
+        fieldErrors: { notes: ['Keep notes under 500 characters'] },
+      }),
+    );
+  });
+});
+
+describe('cancelReservation', () => {
+  it('cancels the booking, frees its table, and emails the guest', () => {
+    const state = seedVenue('QUIET_WEEK', FRIDAY_5PM);
+    state.tables = [{ id: 't1', name: 'T1', seats: 2 }];
+    state.combinations = [];
+    const booking = book(state, { partySize: 2 });
+    // A snapshot, not a reference to the same (later mutated) object.
+    const heldTableIds = [...booking.tableIds];
+
+    const cancelled = cancelReservation(state, context(), booking.manageToken);
+
+    expect(cancelled.status).toBe('CANCELLED');
+    expect(cancelled.cancelledAt).toBe(FRIDAY_5PM.toISOString());
+    expect(state.outbox[0]).toMatchObject({
+      subject: 'Your booking at Cinder & Salt is cancelled',
+    });
+    expect(state.outbox[0].body).toBe(
+      `Booking ${cancelled.reference} for ${formatDateTime(SATURDAY_6PM)} is cancelled.`,
+    );
+    // The table is free again by status alone (CANCELLED does not hold a
+    // table); tableIds is kept, so the demo console can still show which
+    // table this booking used to hold.
+    expect(cancelled.tableIds).toEqual(heldTableIds);
+    expect(book(state, { partySize: 2 }, 'key-2').startsAt).toBe(SATURDAY_6PM);
+  });
+
+  it('refuses a second cancellation', () => {
+    const state = seedVenue('QUIET_WEEK', FRIDAY_5PM);
+    const booking = book(state);
+    cancelReservation(state, context(), booking.manageToken);
+
+    expect(() => cancelReservation(state, context(), booking.manageToken)).toThrow(
+      expect.objectContaining({ errorCode: 'RESERVATION_NOT_CHANGEABLE' }),
+    );
+  });
+
+  it('refuses a cancellation after the cutoff', () => {
+    const state = seedVenue('QUIET_WEEK', FRIDAY_5PM);
+    const booking = book(state);
+    const insideCutoff = new Date(Date.parse(SATURDAY_6PM) - 30 * 60_000);
+
+    expect(() => cancelReservation(state, context(insideCutoff), booking.manageToken)).toThrow(
+      expect.objectContaining({ errorCode: 'CHANGE_CUTOFF_PASSED' }),
+    );
+  });
+});
+
+describe('toDemoRow', () => {
+  it('names the tables and links to the manage page', () => {
+    const state = seedVenue('QUIET_WEEK', FRIDAY_5PM);
+    const booking = book(state, { partySize: 8 });
+
+    expect(toDemoRow(state, booking)).toEqual({
+      reference: booking.reference,
+      status: 'CONFIRMED',
+      startsAt: SATURDAY_6PM,
+      partySize: 8,
+      guestName: 'Alex Rivera',
+      tableNames: ['T3', 'T4'],
+      manageHref: manageHref(booking.manageToken),
+    });
   });
 });

@@ -1,3 +1,4 @@
+import { createElement } from 'react';
 import type { Metadata } from 'next';
 import { metadata as accountMetadata } from '@/app/(guest)/account/page';
 import { metadata as addressesMetadata } from '@/app/(guest)/account/addresses/page';
@@ -14,6 +15,12 @@ import { metadata as menuMetadata } from '@/app/(guest)/order/page';
 import { metadata as paidMetadata } from '@/app/(guest)/order/paid/page';
 import { metadata as payDemoMetadata } from '@/app/(guest)/order/pay-demo/page';
 import { metadata as trackMetadata } from '@/app/(guest)/order/track/page';
+import BookingDemoPage, { metadata as bookingDemoMetadata } from '@/app/(guest)/reserve/demo/page';
+import ManageBookingPage, {
+  metadata as manageBookingMetadata,
+} from '@/app/(guest)/reserve/manage/page';
+import ReservePage, { metadata as reserveMetadata } from '@/app/(guest)/reserve/page';
+import { renderGuest } from '../helpers/renderGuest';
 
 describe('guest page metadata', () => {
   it('lets search engines index the order menu', () => {
@@ -37,10 +44,27 @@ describe('guest page metadata', () => {
       '/account/addresses': addressesMetadata,
       '/account/orders': ordersMetadata,
       '/account/orders/[reference]': orderDetailMetadata,
+      '/reserve': reserveMetadata,
+      '/reserve/manage': manageBookingMetadata,
+      '/reserve/demo': bookingDemoMetadata,
     };
 
     Object.entries(pages).forEach(([path, metadata]) => {
       expect({ path, robots: metadata.robots }).toEqual({ path, robots: { index: false, follow: false } });
     });
+  });
+});
+
+describe('booking page markup', () => {
+  // The root layout (src/app/layout.tsx) already renders a <main>. A second
+  // one here would be invalid, nested landmark markup.
+  it.each([
+    ['/reserve', ReservePage],
+    ['/reserve/manage', ManageBookingPage],
+    ['/reserve/demo', BookingDemoPage],
+  ] as const)('does not nest a second <main> under %s', (_path, Page) => {
+    const { container } = renderGuest(createElement(Page));
+
+    expect(container.querySelector('main')).toBeNull();
   });
 });

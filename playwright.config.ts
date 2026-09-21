@@ -29,6 +29,7 @@ export default defineConfig({
     env: {
       NEXT_PUBLIC_API_BASE_URL: E2E_API_BASE_URL,
       NEXT_PUBLIC_ORDERING_DATA_SOURCE: 'mock',
+      NEXT_PUBLIC_RESERVATIONS_DATA_SOURCE: 'mock',
     },
   },
 });

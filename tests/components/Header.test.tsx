@@ -66,9 +66,9 @@ describe('Header', () => {
     expect(current.map((link) => link.textContent)).toEqual(['About']);
   });
 
-  it('points the reserve call to action at the contact section until booking exists', () => {
+  it('links Reserve to the booking page', () => {
     renderWithSections();
-    expect(screen.getByRole('link', { name: 'Reserve' })).toHaveAttribute('href', '/#contact');
+    expect(screen.getByRole('link', { name: 'Reserve' })).toHaveAttribute('href', '/reserve');
   });
 
   it('links Order to the online ordering page', () => {

@@ -1,0 +1,59 @@
+/* Booking pages: the /reserve flow, the manage page, and the demo console.
+   Form controls come from src/components/forms/form.module.css. */
+.page {
+  display: grid;
+  gap: var(--space-6);
+  max-width: 44rem;
+  margin: 0 auto;
+  padding-block: var(--space-8);
+}
+
+.progress {
+  font-size: var(--text-sm);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--ink-subtle);
+}
+
+.stepTitle {
+  font-size: var(--text-xl);
+}
+
+.summary {
+  color: var(--ink-muted);
+}
+
+.slots {
+  display: grid;
+  gap: var(--space-3);
+}
+
+/* Times read as a grid of equal buttons, and fall to fewer columns on a phone. */
+.slots fieldset > div {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr));
+  gap: var(--space-2);
+}
+
+.status {
+  color: var(--ink-muted);
+}
+
+.card {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-5);
+  background: var(--surface-raised);
+  border-left: 2px solid var(--accent);
+}
+
+.cardRow {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.demoNote {
+  font-size: var(--text-sm);
+  color: var(--ink-subtle);
+}

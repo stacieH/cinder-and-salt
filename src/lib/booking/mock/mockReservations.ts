@@ -6,12 +6,15 @@ import { isEmail } from '@/lib/email';
 import { isReachablePhone } from '@/lib/phone';
 import type {
   BookingRules,
+  ChangeReservationRequest,
   CreateReservationRequest,
+  DemoReservationRow,
   ReservationSummary,
 } from '../types';
 import { fitTables, serviceWindow } from './mockAvailability';
 import { MockContext, newId, newReference, newToken, queueEmail } from './mockContext';
 import type { BookingDemoState, StoredReservation } from './mockStore';
+import { formatDateTime, formatPartySize } from '../time';
 import { isoInstant, MINUTE, SLOT_MINUTES } from './venueTime';
 
 export const NAME_MAX_LENGTH = 80;
@@ -182,11 +185,123 @@ export function createReservation(
   queueEmail(state, ctx, {
     to: reservation.guest.email,
     subject: 'Your table at Cinder & Salt is booked',
-    body: `Booking ${reservation.reference} for ${reservation.partySize} on ${reservation.startsAt}.`,
+    body: `Booking ${reservation.reference} for ${formatPartySize(reservation.partySize)} on ${formatDateTime(reservation.startsAt)}.`,
     links: [
       { label: 'Change or cancel your booking', href: manageHref(reservation.manageToken) },
     ],
   });
 
   return reservation;
+}
+
+export function findByToken(state: BookingDemoState, token: string): StoredReservation {
+  const reservation = state.reservations.find((booking) => booking.manageToken === token);
+
+  if (!reservation) {
+    throw new ApiError(404, 'RESERVATION_NOT_FOUND', 'This link has expired or isn’t valid.');
+  }
+
+  return reservation;
+}
+
+/** Only a confirmed booking, before its cutoff, can still be changed online. */
+function requireChangeable(reservation: StoredReservation, now: Date, rules: BookingRules): void {
+  if (reservation.status !== 'CONFIRMED') {
+    throw new ApiError(409, 'RESERVATION_NOT_CHANGEABLE', 'This booking can no longer be changed.');
+  }
+
+  if (now.getTime() >= Date.parse(changeCutoffAt(reservation.startsAt, rules))) {
+    throw new ApiError(409, 'CHANGE_CUTOFF_PASSED', 'Online changes have closed for this booking.');
+  }
+}
+
+export function changeReservation(
+  state: BookingDemoState,
+  ctx: MockContext,
+  token: string,
+  request: ChangeReservationRequest,
+): StoredReservation {
+  const reservation = findByToken(state, token);
+  requireChangeable(reservation, ctx.now(), state.rules);
+
+  const fieldErrors: Record<string, string[]> = {};
+  if (request.notes.length > NOTES_MAX_LENGTH) {
+    fieldErrors.notes = [`Keep notes under ${NOTES_MAX_LENGTH} characters`];
+  }
+  if (!Number.isInteger(request.partySize) || request.partySize < 1) {
+    fieldErrors.partySize = ['Choose how many guests are coming'];
+  }
+  if (Object.keys(fieldErrors).length > 0) throw validationFailed(fieldErrors);
+
+  if (request.partySize > state.rules.maxOnlinePartySize) {
+    throw new ApiError(422, 'PARTY_TOO_LARGE', 'For a party this size, please call us.');
+  }
+
+  checkWindow(state, ctx.now(), request.startsAt);
+  if (!isOfferedTime(state, request.startsAt)) throw slotUnavailable();
+
+  // The booking's own tables count as free, so keeping the time works and a move
+  // can come back to them.
+  const tableIds = fitTables(state, request.startsAt, request.partySize, reservation.id);
+  if (!tableIds) throw slotUnavailable();
+
+  reservation.startsAt = request.startsAt;
+  reservation.endsAt = isoInstant(Date.parse(request.startsAt) + state.seatingMinutes * MINUTE);
+  reservation.partySize = request.partySize;
+  reservation.notes = request.notes.trim();
+  reservation.tableIds = tableIds;
+  reservation.changedAt = ctx.now().toISOString();
+
+  queueEmail(state, ctx, {
+    to: reservation.guest.email,
+    subject: 'Your booking at Cinder & Salt has changed',
+    body: `Booking ${reservation.reference} is now for ${formatPartySize(reservation.partySize)} on ${formatDateTime(reservation.startsAt)}.`,
+    links: [{ label: 'View your booking', href: manageHref(reservation.manageToken) }],
+  });
+
+  return reservation;
+}
+
+export function cancelReservation(
+  state: BookingDemoState,
+  ctx: MockContext,
+  token: string,
+): StoredReservation {
+  const reservation = findByToken(state, token);
+  requireChangeable(reservation, ctx.now(), state.rules);
+
+  reservation.status = 'CANCELLED';
+  reservation.cancelledAt = ctx.now().toISOString();
+  // Its tables are freed by status alone (see HOLDS_A_TABLE in
+  // mockAvailability.ts); tableIds stays as it was, so the demo console can
+  // still show which table a cancelled booking used to hold.
+
+  queueEmail(state, ctx, {
+    to: reservation.guest.email,
+    subject: 'Your booking at Cinder & Salt is cancelled',
+    body: `Booking ${reservation.reference} for ${formatDateTime(reservation.startsAt)} is cancelled.`,
+    links: [],
+  });
+
+  return reservation;
+}
+
+/** One row of the demo console's booking list. */
+export function toDemoRow(
+  state: BookingDemoState,
+  reservation: StoredReservation,
+): DemoReservationRow {
+  const names = reservation.tableIds.map(
+    (tableId) => state.tables.find((table) => table.id === tableId)?.name ?? tableId,
+  );
+
+  return {
+    reference: reservation.reference,
+    status: reservation.status,
+    startsAt: reservation.startsAt,
+    partySize: reservation.partySize,
+    guestName: reservation.guest.name,
+    tableNames: names,
+    manageHref: manageHref(reservation.manageToken),
+  };
 }

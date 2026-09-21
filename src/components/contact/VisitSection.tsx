@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import Reveal from '@/components/motion/Reveal';
 import SplitHeading from '@/components/motion/SplitHeading';
 import EnquiryForm from '@/components/contact/EnquiryForm';
@@ -17,6 +18,14 @@ export default function VisitSection() {
         </Reveal>
 
         <Reveal>
+          <div className={styles.booking}>
+            <p className={styles.bookingText}>
+              Booking a table takes a minute, and you can change or cancel it later.
+            </p>
+            <Link href="/reserve" className={styles.bookingLink}>
+              Book a table
+            </Link>
+          </div>
           <EnquiryForm />
         </Reveal>
       </div>

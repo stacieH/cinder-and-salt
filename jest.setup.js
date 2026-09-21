@@ -37,6 +37,7 @@ if (typeof global.ResizeObserver !== 'function') {
 // The API client reads these at call time. Tests never reach a real network.
 process.env.NEXT_PUBLIC_API_BASE_URL = 'http://api.test/v1';
 process.env.NEXT_PUBLIC_ORDERING_DATA_SOURCE = 'mock';
+process.env.NEXT_PUBLIC_RESERVATIONS_DATA_SOURCE = 'mock';
 
 // next/link handles clicks through the App Router, which unit tests do not
 // mount. Render it as the anchor it produces so tests can assert the href.

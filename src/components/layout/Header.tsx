@@ -61,7 +61,7 @@ export default function Header() {
 
   // Section links are plain anchors: they target this one page, and Lenis's
   // `anchors` option (SmoothScrollProvider) smooth-scrolls same-page links
-  // itself. Order goes to its own page, so it uses next/link.
+  // itself. Order and Reserve go to their own pages, so they use next/link.
   return (
     <header ref={headerRef} className={styles.header} data-scrolled={scrolled}>
       <div className={styles.inner}>
@@ -104,9 +104,9 @@ export default function Header() {
             <Link href="/order" className={styles.order} onClick={closeMenu}>
               Order
             </Link>
-            <a href={sectionHref('contact')} className={styles.reserve} onClick={closeMenu}>
+            <Link href="/reserve" className={styles.reserve} onClick={closeMenu}>
               Reserve
-            </a>
+            </Link>
           </div>
         </nav>
       </div>

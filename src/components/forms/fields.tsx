@@ -68,6 +68,9 @@ interface TextFieldProps extends CommonProps {
   autoComplete?: string;
   inputMode?: 'text' | 'email' | 'tel' | 'numeric';
   maxLength?: number;
+  /** Date inputs only: the first and last date the field accepts. */
+  min?: string;
+  max?: string;
 }
 
 export function TextField({
@@ -84,6 +87,8 @@ export function TextField({
   autoComplete,
   inputMode,
   maxLength,
+  min,
+  max,
 }: TextFieldProps) {
   return (
     <div className={styles.field}>
@@ -97,6 +102,8 @@ export function TextField({
         autoComplete={autoComplete}
         inputMode={inputMode}
         maxLength={maxLength}
+        min={min}
+        max={max}
         onChange={(event) => onChange(event.target.value)}
         onBlur={onBlur}
         aria-invalid={Boolean(error)}

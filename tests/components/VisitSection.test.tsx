@@ -31,4 +31,11 @@ describe('VisitSection', () => {
     expect(screen.getByTitle(`Map of ${venue.name} in ${venue.mapArea}`)).toBeInTheDocument();
     expect(screen.queryByText('Map')).toBeNull();
   });
+
+  it('offers a booking link above the enquiry form', () => {
+    render(<VisitSection />);
+
+    const link = screen.getByRole('link', { name: 'Book a table' });
+    expect(link).toHaveAttribute('href', '/reserve');
+  });
 });

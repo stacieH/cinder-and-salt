@@ -27,3 +27,28 @@
     gap: var(--space-10);
   }
 }
+
+.booking {
+  display: grid;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+  padding: var(--space-4) var(--space-5);
+  background: var(--surface-raised);
+  border-left: 2px solid var(--accent);
+}
+
+.bookingText {
+  color: var(--ink-muted);
+}
+
+.bookingLink {
+  justify-self: start;
+  color: var(--accent);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  font-size: var(--text-sm);
+}
+
+.bookingLink:hover {
+  color: var(--accent-strong);
+}
