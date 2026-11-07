@@ -2,6 +2,7 @@
 import { useEffect, useReducer, useRef, useState } from 'react';
 import formStyles from '@/components/forms/form.module.css';
 import { bookingReducer, initialBookingState } from '@/lib/booking/bookingFlow';
+import { rulesLoadMessage } from '@/lib/booking/bookingErrors';
 import { useBookingRules } from '@/lib/booking/queries';
 import { venueDateOf } from '@/lib/booking/time';
 import BookedStep from './BookedStep';
@@ -43,7 +44,7 @@ export default function BookingFlow() {
     return (
       <div className={styles.slots}>
         <p className={styles.status} role="alert">
-          We couldn’t load booking times. Please try again.
+          {rulesLoadMessage(rules.error)}
         </p>
         <div className={formStyles.actions}>
           <button type="button" className={formStyles.secondary} onClick={() => rules.refetch()}>

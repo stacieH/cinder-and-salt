@@ -64,7 +64,7 @@ export default function TimeStep({
       {availability.isError && (
         <div className={styles.slots}>
           <p className={styles.status} role="alert">
-            {availabilityErrorMessage()}
+            {availabilityErrorMessage(availability.error)}
           </p>
           <div className={formStyles.actions}>
             <button

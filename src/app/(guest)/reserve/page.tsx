@@ -2,11 +2,12 @@ import type { Metadata } from 'next';
 import BookingFlow from '@/components/reserve/BookingFlow';
 import DemoNote from '@/components/reserve/DemoNote';
 import styles from '@/components/reserve/reserve.module.css';
+import { bookingRunsOnDemoData } from '@/lib/booking/dataSource';
 
 export const metadata: Metadata = {
   title: 'Book a table',
-  // The booking pages run on demo data until the reservations API is live.
-  robots: { index: false, follow: false },
+  // Demo bookings stay out of search results; real ones can be found.
+  ...(bookingRunsOnDemoData() ? { robots: { index: false, follow: false } } : {}),
   referrer: 'no-referrer',
 };
 

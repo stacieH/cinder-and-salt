@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import { ApiReservationsClient } from '@/lib/booking/api/ApiReservationsClient';
 import {
   createReservationsClient,
   ReservationsClientProvider,
@@ -11,27 +12,46 @@ function ClientName() {
   return <p>{client.demo ? 'demo client' : 'api client'}</p>;
 }
 
+/** Sets one environment variable for the length of `run`, then puts it back. */
+function withEnv(name: string, value: string | undefined, run: () => void) {
+  const original = process.env[name];
+  if (value === undefined) delete process.env[name];
+  else process.env[name] = value;
+  try {
+    run();
+  } finally {
+    if (original === undefined) delete process.env[name];
+    else process.env[name] = original;
+  }
+}
+
 describe('createReservationsClient', () => {
   it('returns the mock for the demo data source', () => {
     expect(createReservationsClient('mock')).toBeInstanceOf(MockReservationsClient);
   });
 
-  it('refuses any other data source until the API exists', () => {
-    expect(() => createReservationsClient('api')).toThrow(
-      'Reservations API client is not available yet',
-    );
+  it('returns the API client for the api data source', () => {
+    expect(createReservationsClient('api')).toBeInstanceOf(ApiReservationsClient);
+  });
 
-    // jest.setup.js sets this env var for every other test in the suite, so
-    // it is cleared here to exercise the true "unset" default.
-    const original = process.env.NEXT_PUBLIC_RESERVATIONS_DATA_SOURCE;
-    delete process.env.NEXT_PUBLIC_RESERVATIONS_DATA_SOURCE;
-    try {
-      expect(() => createReservationsClient(undefined)).toThrow(
-        'Reservations API client is not available yet',
-      );
-    } finally {
-      process.env.NEXT_PUBLIC_RESERVATIONS_DATA_SOURCE = original;
-    }
+  it('refuses any other data source, including none at all', () => {
+    const message = 'NEXT_PUBLIC_RESERVATIONS_DATA_SOURCE must be "mock" or "api"';
+
+    expect(() => createReservationsClient('live')).toThrow(message);
+    // jest.setup.js sets this for every other test, so it is cleared here to
+    // exercise the true "unset" default.
+    withEnv('NEXT_PUBLIC_RESERVATIONS_DATA_SOURCE', undefined, () => {
+      expect(() => createReservationsClient()).toThrow(message);
+    });
+  });
+
+  it('fails loudly when the API settings are missing', () => {
+    withEnv('NEXT_PUBLIC_MERCHANT_SLUG', undefined, () => {
+      expect(() => createReservationsClient('api')).toThrow('NEXT_PUBLIC_MERCHANT_SLUG is not set');
+    });
+    withEnv('NEXT_PUBLIC_API_BASE_URL', undefined, () => {
+      expect(() => createReservationsClient('api')).toThrow('NEXT_PUBLIC_API_BASE_URL is not set');
+    });
   });
 });
 
@@ -44,6 +64,16 @@ describe('useReservationsClient', () => {
     );
 
     expect(screen.getByText('demo client')).toBeInTheDocument();
+  });
+
+  it('hands components the API client, which has no demo controls', () => {
+    render(
+      <ReservationsClientProvider client={new ApiReservationsClient()}>
+        <ClientName />
+      </ReservationsClientProvider>,
+    );
+
+    expect(screen.getByText('api client')).toBeInTheDocument();
   });
 
   it('fails loudly outside the provider', () => {

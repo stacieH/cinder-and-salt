@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import BookingDemoConsole from '@/components/reserve/BookingDemoConsole';
 import styles from '@/components/reserve/reserve.module.css';
+import { bookingRunsOnDemoData } from '@/lib/booking/dataSource';
 
 export const metadata: Metadata = {
   title: 'Booking demo',
@@ -9,6 +11,9 @@ export const metadata: Metadata = {
 };
 
 export default function BookingDemoPage() {
+  // The demo console only makes sense on demo data.
+  if (!bookingRunsOnDemoData()) notFound();
+
   return (
     <div className={styles.page}>
       <h1>Booking demo</h1>

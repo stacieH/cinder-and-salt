@@ -1,17 +1,29 @@
 'use client';
 import { createContext, ReactNode, useContext, useState } from 'react';
+import { apiBaseUrl, merchantSlug } from '@/lib/api/config';
+import { ApiReservationsClient } from './api/ApiReservationsClient';
 import { MockReservationsClient } from './mock/MockReservationsClient';
 import type { ReservationsClient } from './types';
 
 /**
- * Picks the ReservationsClient for NEXT_PUBLIC_RESERVATIONS_DATA_SOURCE. Only
- * the demo data source exists until the reservations API (2A) is live.
+ * Picks the ReservationsClient for NEXT_PUBLIC_RESERVATIONS_DATA_SOURCE:
+ * "mock" for the demo data in this browser, "api" for the reservations API.
+ * A misconfigured deployment fails here, loudly, instead of showing empty
+ * pages or sending requests the API can only refuse.
  */
 export function createReservationsClient(
   source: string | undefined = process.env.NEXT_PUBLIC_RESERVATIONS_DATA_SOURCE,
 ): ReservationsClient {
   if (source === 'mock') return new MockReservationsClient();
-  throw new Error('Reservations API client is not available yet');
+
+  if (source === 'api') {
+    // Both throw with the missing setting's name.
+    apiBaseUrl();
+    merchantSlug();
+    return new ApiReservationsClient();
+  }
+
+  throw new Error('NEXT_PUBLIC_RESERVATIONS_DATA_SOURCE must be "mock" or "api"');
 }
 
 const ReservationsClientContext = createContext<ReservationsClient | null>(null);

@@ -38,6 +38,7 @@ if (typeof global.ResizeObserver !== 'function') {
 process.env.NEXT_PUBLIC_API_BASE_URL = 'http://api.test/v1';
 process.env.NEXT_PUBLIC_ORDERING_DATA_SOURCE = 'mock';
 process.env.NEXT_PUBLIC_RESERVATIONS_DATA_SOURCE = 'mock';
+process.env.NEXT_PUBLIC_MERCHANT_SLUG = 'cinder-salt';
 
 // next/link handles clicks through the App Router, which unit tests do not
 // mount. Render it as the anchor it produces so tests can assert the href.

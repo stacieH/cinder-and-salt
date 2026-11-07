@@ -16,6 +16,8 @@ export type ApiErrorCode =
   | 'FORBIDDEN'
   | 'NOT_FOUND'
   | 'CONFLICT'
+  | 'MERCHANT_NOT_FOUND'
+  | 'MERCHANT_INACTIVE'
   // Ordering
   | 'ORDERING_PAUSED'
   | 'ORDERING_CLOSED'

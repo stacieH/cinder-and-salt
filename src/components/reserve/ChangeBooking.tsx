@@ -4,7 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { FormAlert, TextAreaField } from '@/components/forms/fields';
 import formStyles from '@/components/forms/form.module.css';
 import { ApiError } from '@/lib/api/client';
-import { bookingFieldErrors, changeErrorMessage } from '@/lib/booking/bookingErrors';
+import { bookingFieldErrors, changeErrorMessage, rulesLoadMessage } from '@/lib/booking/bookingErrors';
 import { useReservationsClient } from '@/lib/booking/clientContext';
 import { useBookingRules } from '@/lib/booking/queries';
 import { bookingKeys } from '@/lib/booking/queryKeys';
@@ -81,7 +81,7 @@ export default function ChangeBooking({
     return (
       <div className={styles.slots}>
         <p className={styles.status} role="alert">
-          We couldn’t load booking times. Please try again.
+          {rulesLoadMessage(rules.error)}
         </p>
         <div className={formStyles.actions}>
           <button type="button" className={formStyles.secondary} onClick={() => rules.refetch()}>

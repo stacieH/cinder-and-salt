@@ -3,6 +3,8 @@ import { E2E_API_BASE_URL, E2E_PORT, E2E_SITE_ORIGIN } from './e2e/support/env';
 
 export default defineConfig({
   testDir: './e2e',
+  // Needs the api data source; playwright.api.config.ts runs it.
+  testIgnore: 'reserve-api.spec.ts',
   fullyParallel: false,
   workers: 1,
   retries: 0,
@@ -30,6 +32,7 @@ export default defineConfig({
       NEXT_PUBLIC_API_BASE_URL: E2E_API_BASE_URL,
       NEXT_PUBLIC_ORDERING_DATA_SOURCE: 'mock',
       NEXT_PUBLIC_RESERVATIONS_DATA_SOURCE: 'mock',
+      NEXT_PUBLIC_MERCHANT_SLUG: 'cinder-salt',
     },
   },
 });

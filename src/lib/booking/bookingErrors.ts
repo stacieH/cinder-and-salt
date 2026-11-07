@@ -12,12 +12,23 @@ export interface BookingFieldErrors {
 
 const FALLBACK = `We couldn’t complete your booking. Please try again, or call us on ${venue.phone}.`;
 
+/** MERCHANT_NOT_FOUND or MERCHANT_INACTIVE: nothing the guest can fix online. */
+export const UNAVAILABLE_MESSAGE = `Online booking isn’t available right now. Please call us on ${venue.phone}.`;
+
+const MERCHANT_CODES = new Set(['MERCHANT_NOT_FOUND', 'MERCHANT_INACTIVE']);
+
+function isMerchantRefusal(error: unknown): boolean {
+  return error instanceof ApiError && MERCHANT_CODES.has(error.errorCode);
+}
+
 const BOOKING_MESSAGES: Record<string, string> = {
   SLOT_UNAVAILABLE: 'That time was just taken. Please choose another.',
   VALIDATION_FAILED: 'Please check the highlighted details.',
   PARTY_TOO_LARGE: `For a party this size, please call us on ${venue.phone}.`,
   OUTSIDE_BOOKING_WINDOW: 'That date is outside our booking window. Please choose another date.',
   RATE_LIMITED: 'Too many attempts. Please wait a minute and try again.',
+  MERCHANT_NOT_FOUND: UNAVAILABLE_MESSAGE,
+  MERCHANT_INACTIVE: UNAVAILABLE_MESSAGE,
 };
 
 const CHANGE_MESSAGES: Record<string, string> = {
@@ -59,11 +70,22 @@ export function bookingFieldErrors(error: unknown): BookingFieldErrors {
   return errors;
 }
 
-export function availabilityErrorMessage(): string {
+export function availabilityErrorMessage(error?: unknown): string {
+  if (isMerchantRefusal(error)) return UNAVAILABLE_MESSAGE;
+  if (error instanceof ApiError && error.errorCode === 'OUTSIDE_BOOKING_WINDOW') {
+    return BOOKING_MESSAGES.OUTSIDE_BOOKING_WINDOW;
+  }
   return 'We couldn’t load times. Please try again.';
 }
 
+/** The booking rules load first on /reserve and in the change flow. */
+export function rulesLoadMessage(error?: unknown): string {
+  if (isMerchantRefusal(error)) return UNAVAILABLE_MESSAGE;
+  return 'We couldn’t load booking times. Please try again.';
+}
+
 export function manageLoadMessage(error: unknown): string {
+  if (isMerchantRefusal(error)) return UNAVAILABLE_MESSAGE;
   if (error instanceof ApiError && error.errorCode === 'RESERVATION_NOT_FOUND') {
     return `This link has expired or isn’t valid. Call us on ${venue.phone} and we’ll help.`;
   }
